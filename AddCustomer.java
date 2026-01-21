@@ -4,14 +4,21 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 class AddCustomer {
-    final String DB_URL = "jdbc:mysql://localhost:3306/eateateat";
+    // Database connection properties
+    Properties props = new Properties();
+    String DB_URL = props.getDbUrl();
+    String DB_USER = props.getDbUser();
+    String DB_PASSWORD = props.getDbPassword();
+
     Connection connection = null;
     PreparedStatement pstat = null;
 
     // Static variable to keep track of Customer IDs
     static int IDNo = 1000;
+
     // Instance variables
     int i = 0;
+
     // Table columns
     int customerID;
     String firstName;
@@ -33,9 +40,11 @@ class AddCustomer {
         customerID++; // Increment for the next customer
 
         try {
-            connection = DriverManager.getConnection(DB_URL, "root", "Jav@Pr0j$$");
+            connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+
             // Create SQL insert statement
             String sql = "INSERT INTO customers (CustomerID, FirstName, SecondName, Address, Email, PhoneNumber, Password) VALUES (?, ?, ?, ?, ?, ?, ?)";
+            
             // Establish connection to database
             pstat = connection.prepareStatement(sql);
 
