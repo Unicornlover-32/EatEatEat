@@ -1,0 +1,23 @@
+{
+    "java.project.referencedLibraries": [
+        "lib/**/*.jar",
+        "c:\\Users\\Ethan\\OneDrive - South East Technological University\\Desktop\\mysql-connector-j-9.6.0.jar"
+    ],
+    "sqltools.connections": [
+        {
+            "mysqlOptions": {
+                "authProtocol": "xprotocol",
+                "enableSsl": "Disabled"
+            },
+            "ssh": "Disabled",
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 33060,
+            "driver": "MySQL",
+            "name": "testconn",
+            "database": "eateateat",
+            "username": "root",
+            "connectionTimeout": 10
+        }
+    ]
+}

@@ -1,6 +1,7 @@
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 class AddCustomer {
@@ -12,9 +13,6 @@ class AddCustomer {
 
     Connection connection = null;
     PreparedStatement pstat = null;
-
-    // Static variable to keep track of Customer IDs
-    static int IDNo = 1000;
 
     // Instance variables
     int i = 0;
@@ -30,23 +28,36 @@ class AddCustomer {
 
     // Constructor - initializes customer details and inserts into database
     public AddCustomer(String firstName, String secondName, String address, String email, String phoneNumber, String password) {
-        this.customerID = IDNo;
         this.firstName = firstName;
         this.secondName = secondName;
         this.address = address;
         this.email = email;
         this.phoneNumber = phoneNumber;
         this.password = password;
-        customerID++; // Increment for the next customer
 
         try {
             connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
 
             // Create SQL insert statement
-            String sql = "INSERT INTO customers (CustomerID, FirstName, SecondName, Address, Email, PhoneNumber, Password) VALUES (?, ?, ?, ?, ?, ?, ?)";
+            String insert = "INSERT INTO customers (CustomerID, FirstName, SecondName, Address, Email, PhoneNumber, Password) VALUES (?, ?, ?, ?, ?, ?, ?)";
             
+            // Creat SQL retrieve ID
+            String retrieveID = "SELECT customerID FROM customers ORDER BY customerId DESC LIMIT 1";
+
+            // Get the last entered customerID from the database
+            PreparedStatement getCustomerID = connection.prepareStatement(retrieveID);
+            ResultSet queryCustomerID = getCustomerID.executeQuery();
+            
+            if (queryCustomerID.next()) {
+                customerID = queryCustomerID.getInt("customerID"); // or column index 1
+                customerID ++;
+            }
+            else {
+                throw new SQLException("No customer found");
+            }
+
             // Establish connection to database
-            pstat = connection.prepareStatement(sql);
+            pstat = connection.prepareStatement(insert);
 
             // Create prepared statement for updating data in the table
             pstat.setInt(1, customerID);
@@ -74,5 +85,5 @@ class AddCustomer {
                 sqlException.printStackTrace();
             }
         }
-}   
+    }   
 }
