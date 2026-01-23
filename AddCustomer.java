@@ -41,21 +41,6 @@ class AddCustomer {
             // Create SQL insert statement
             String insert = "INSERT INTO customers (CustomerID, FirstName, SecondName, Address, Email, PhoneNumber, Password) VALUES (?, ?, ?, ?, ?, ?, ?)";
             
-            // Creat SQL retrieve ID
-            String retrieveID = "SELECT customerID FROM customers ORDER BY customerId DESC LIMIT 1";
-
-            // Get the last entered customerID from the database
-            PreparedStatement getCustomerID = connection.prepareStatement(retrieveID);
-            ResultSet queryCustomerID = getCustomerID.executeQuery();
-            
-            if (queryCustomerID.next()) {
-                customerID = queryCustomerID.getInt("customerID"); // or column index 1
-                customerID ++;
-            }
-            else {
-                throw new SQLException("No customer found");
-            }
-
             // Establish connection to database
             pstat = connection.prepareStatement(insert);
 
