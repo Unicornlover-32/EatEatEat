@@ -1,3 +1,5 @@
+package src;
+
 // Properties.java
 // This class contains the database connection properties.
 // It provides methods to access the database URL, user, and password.

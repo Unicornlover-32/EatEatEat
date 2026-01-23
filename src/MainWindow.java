@@ -1,7 +1,11 @@
+package src;
+
 import javax.swing.JOptionPane; // program uses JOptionPane
 
 public class MainWindow {
-    // Window to add customers to the system
+    // Addition program
+
+
     public static void main( String [] args ){
         // obtain user input
         String name = JOptionPane.showInputDialog("Enter your name" );

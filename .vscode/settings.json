@@ -1,7 +1,8 @@
 {
     "java.project.referencedLibraries": [
         "lib/**/*.jar",
-        "c:\\Users\\Ethan\\OneDrive - South East Technological University\\Desktop\\mysql-connector-j-9.6.0.jar"
+        "c:\\Users\\Ethan\\OneDrive - South East Technological University\\Desktop\\mysql-connector-j-9.6.0.jar",
+        "c:\\Users\\ethan\\OneDrive\\Desktop\\mysql-connector-j-9.6.0.jar"
     ],
     "sqltools.connections": [
         {
