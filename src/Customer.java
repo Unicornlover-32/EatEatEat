@@ -37,7 +37,8 @@ class Customer {
         this.phoneNumber = phoneNumber;
         this.password = password;
 
-        try {
+        try 
+        {
             connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
 
             // Create SQL insert statement
@@ -59,28 +60,34 @@ class Customer {
             i = pstat.executeUpdate();
             System.out.println(i + " record successfully updated in the table.");
         } 
-        catch (SQLException sqlException) {
+        catch (SQLException sqlException) 
+        {
             sqlException.printStackTrace();
         }
         // Finally block to close resources
-        finally {
-            try {
+        finally 
+        {
+            try 
+            {
                 pstat.close();
                 connection.close();
             } 
-            catch (SQLException sqlException) {
+            catch (SQLException sqlException) 
+            {
                 sqlException.printStackTrace();
             }
         }
     }  
     
     // Overloaded constructor for removing a customer
-    public Customer(String firstName, String secondName,  String password) { 
+    public Customer(String firstName, String secondName,  String password) 
+    { 
         this.firstName = firstName;
         this.secondName = secondName;
         this.password = password;
 
-        try {
+        try 
+        {
             connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
 
             // Create SQL delete statement
@@ -98,16 +105,20 @@ class Customer {
             i = pstat.executeUpdate();
             System.out.println(i + " record successfully deleted from the table.");
         } 
-        catch (SQLException sqlException) {
+        catch (SQLException sqlException) 
+        {
             sqlException.printStackTrace();
         }
         // Finally block to close resources
-        finally {
-            try {
+        finally 
+        {
+            try 
+            {
                 pstat.close();
                 connection.close();
             } 
-            catch (SQLException sqlException) {
+            catch (SQLException sqlException) 
+            {
                 sqlException.printStackTrace();
             }
         }
