@@ -72,5 +72,44 @@ class AddCustomer {
                 sqlException.printStackTrace();
             }
         }
-    }   
+    }  
+    
+    // Overloaded constructor for removing a customer
+    public AddCustomer(String firstName, String secondName,  String password) { 
+        this.firstName = firstName;
+        this.secondName = secondName;
+        this.password = password;
+
+        try {
+            connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+
+            // Create SQL delete statement
+            String delete = "DELETE FROM customers WHERE FirstName = ? AND SecondName = ? AND Password = ?";
+
+            // Establish connection to database
+            pstat = connection.prepareStatement(delete);
+
+            // Create prepared statement for deleting data in the table
+            pstat.setString(1, firstName);
+            pstat.setString(2, secondName);
+            pstat.setString(3, password);
+
+            // Execute the update
+            i = pstat.executeUpdate();
+            System.out.println(i + " record successfully deleted from the table.");
+        } 
+        catch (SQLException sqlException) {
+            sqlException.printStackTrace();
+        }
+        // Finally block to close resources
+        finally {
+            try {
+                pstat.close();
+                connection.close();
+            } 
+            catch (SQLException sqlException) {
+                sqlException.printStackTrace();
+            }
+        }
+    }
 }
