@@ -19,7 +19,7 @@ public class MainWindow {
             String password = JOptionPane.showInputDialog("Enter password");    
             
             //Add customer to the database
-            AddCustomer customer = new AddCustomer(name, surname, address, email, phoneNumber, password);
+            Customer customer = new Customer(name, surname, address, email, phoneNumber, password);
             
             // display result
             JOptionPane.showMessageDialog(null, "Name: " + name + " " + surname +
@@ -33,7 +33,7 @@ public class MainWindow {
             String password = JOptionPane.showInputDialog("Enter password");    
             
             //Add customer to the database
-            AddCustomer customer = new AddCustomer(name, surname, password);
+            Customer customer = new Customer(name, surname, password);
             
             // display result
             JOptionPane.showMessageDialog(null, "Customer has been removed.\nName: " + name + " " + surname, "Customer Details", JOptionPane.PLAIN_MESSAGE );

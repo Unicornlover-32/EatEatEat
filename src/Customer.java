@@ -6,7 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-class AddCustomer {
+class Customer {
     // Database connection properties
     Properties props = new Properties();
     String DB_URL = props.getDbUrl();
@@ -29,7 +29,7 @@ class AddCustomer {
     String password;
 
     // Constructor - initializes customer details and inserts into database
-    public AddCustomer(String firstName, String secondName, String address, String email, String phoneNumber, String password) {
+    public Customer(String firstName, String secondName, String address, String email, String phoneNumber, String password) {
         this.firstName = firstName;
         this.secondName = secondName;
         this.address = address;
@@ -75,7 +75,7 @@ class AddCustomer {
     }  
     
     // Overloaded constructor for removing a customer
-    public AddCustomer(String firstName, String secondName,  String password) { 
+    public Customer(String firstName, String secondName,  String password) { 
         this.firstName = firstName;
         this.secondName = secondName;
         this.password = password;
