@@ -21,22 +21,10 @@ class Customer {
 
     // Table columns
     int customerID;
-    String firstName;
-    String email;
-    String phoneNumber;
-    String secondName;
-    String address;
-    String password;
 
     // Constructor - initializes customer details and inserts into database
     public Customer(String firstName, String secondName, String address, String email, String phoneNumber, String password) {
-        this.firstName = firstName;
-        this.secondName = secondName;
-        this.address = address;
-        this.email = email;
-        this.phoneNumber = phoneNumber;
-        this.password = password;
-
+        
         try {
             connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
 
@@ -76,9 +64,6 @@ class Customer {
     
     // Overloaded constructor for removing a customer
     public Customer(String firstName, String secondName,  String password) { 
-        this.firstName = firstName;
-        this.secondName = secondName;
-        this.password = password;
 
         try {
             connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
