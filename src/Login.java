@@ -9,7 +9,8 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 class Login{
-    public static void main(String[] args) {
+    public static void main(String[] args) 
+    {
         Scanner scanner = new Scanner(System.in);
 
         // Database connection properties
@@ -22,44 +23,65 @@ class Login{
         PreparedStatement pstat = null;
         ResultSet resultSet = null;
 
+        String firstName = "";
+        String lastName = "";
+        String address = "";
+        String email = "";
+        String phoneNumber = "";
+        String password = "";
+        String confirmPassword = "";
+        Boolean loggedIn = false;
 
         System.out.println("Please select an option:");
         System.out.println("1. Create Account \n2. Sign In");
         int choice = scanner.nextInt();
 
-        if (choice == 1) {
+        if (choice == 1) 
+        {
             System.out.println("Creating Account...");
             System.out.println("Enter First Name: ");
-            String firstName = scanner.next();
+            firstName = scanner.next();
 
             System.out.println("Enter Last Name: ");
-            String lastName = scanner.next();
+            lastName = scanner.next();
 
             System.out.println("Enter Address: ");
-            String address = scanner.next();
+            address = scanner.next();
             
             System.out.println("Enter Email: ");
-            String email = scanner.next();
+            email = scanner.next();
 
             System.out.println("Enter Phone Number: ");
-            String phoneNumber = scanner.next();
+            phoneNumber = scanner.next();
 
             System.out.println("Enter Password: ");
-            String password = scanner.next();
+            password = scanner.next();
 
-            Customer customer = new Customer(firstName, lastName, address, email, phoneNumber, password);
+            System.out.println("Enter Password: ");
+            confirmPassword = scanner.next();
 
+            if (password.equals(confirmPassword)) 
+            {
+                Customer customer = new Customer(firstName, lastName, address, email, phoneNumber, password);
+                loggedIn = true;
+            } 
+            else 
+            {
+                System.out.println("Passwords do not match.");
+            }
         } 
-        else if (choice == 2) {
+        else if (choice == 2) 
+        {
             System.out.println("Signing In...");
             
             System.out.println("Enter Email: ");
-            String email = scanner.next();
+            email = scanner.next();
 
             System.out.println("Enter Password: ");
-            String password = scanner.next();
+            password = scanner.next();
 
-            try {
+            try 
+            {
                 connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
 
                 // Create SQL select statement
@@ -74,32 +96,72 @@ class Login{
                 int columnsNumber = metaData.getColumnCount();
 
                 System.out.println("You have signed in successfully.");
-                while (resultSet.next()) {
-                    for (int i = 1; i <= columnsNumber; i++) {
-                        if (i > 1) System.out.print(",  ");
-                        String columnValue = resultSet.getString(i);
-                        System.out.print(metaData.getColumnName(i) + ": " + columnValue);
-                    }
-                    System.out.println("");
-                }
 
+                loggedIn = true;
             } 
-            catch (SQLException sqlException) {
+            catch (SQLException sqlException) 
+            {
                 sqlException.printStackTrace();
             }
-            finally {
-                try {
+            finally
+            {
+                try 
+                {
                     resultSet.close();
                     pstat.close();
                     connection.close();
                 } 
-                catch (Exception exception) {
+                catch (Exception exception) 
+                {
                     exception.printStackTrace();
                 }
             }
         } 
-        else {
+        else 
+        {
             System.out.println("Invalid choice. Please select 1 or 2.");
+        }
+
+        if (loggedIn) 
+        {
+            System.out.println("Welcome to your account!");
+            
+            try 
+            {
+                connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+
+                // Create SQL select statement to get customerID
+                String retrieveID = "SELECT customerID FROM customers WHERE Email = '" + email + "' AND Password = '" + password + "'";
+
+                pstat = connection.prepareStatement(retrieveID);
+                
+                resultSet = pstat.executeQuery();
+
+                int customerID = -1;
+                if (resultSet.next()) 
+                {
+                    customerID = resultSet.getInt("customerID");
+                }
+
+                Account account = new Account(customerID);
+            } 
+            catch (SQLException sqlException) 
+            {
+                sqlException.printStackTrace();
+            }
+            finally
+            {
+                try 
+                {
+                    resultSet.close();
+                    pstat.close();
+                    connection.close();
+                } 
+                catch (Exception exception) 
+                {
+                    exception.printStackTrace();
+                }
+            }
         }
     }
 }
