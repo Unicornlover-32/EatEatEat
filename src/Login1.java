@@ -22,7 +22,7 @@ class Login1{
         PreparedStatement pstat = null;
         ResultSet resultSet = null;
 
-        Boolean loggedIn = false;
+        boolean loggedIn = false;
         int customerID = -1;
 
         try 
@@ -30,19 +30,19 @@ class Login1{
             connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
 
             // Create SQL select statement
-            String retrieve = "SELECT * FROM customers WHERE Email = '" + email + "' AND Password = '" + password + "'";
+            String retrieve = "SELECT * FROM customers WHERE email = ? AND password = ?";
 
             pstat = connection.prepareStatement(retrieve);
+            pstat.setString(1, email);
+            pstat.setString(2, password);
             
             resultSet = pstat.executeQuery();
-            
-            ResultSetMetaData metaData = resultSet.getMetaData();
-            int columnsNumber = metaData.getColumnCount();
-
+        
             if (resultSet.next()) 
             {
-                loggedIn = true;
                 customerID = resultSet.getInt("customerID");
+                System.out.println(customerID);
+                loggedIn = true;
             } 
             else 
             {
@@ -57,7 +57,7 @@ class Login1{
         {
             try 
             {
-                resultSet.close();
+                resultSet.close(); 
                 pstat.close();
                 connection.close();
             } 

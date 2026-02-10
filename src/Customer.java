@@ -47,6 +47,10 @@ class Customer {
             i = pstat.executeUpdate();
             System.out.println(i + " record successfully updated in the table.");
         } 
+        catch (EmailConfirmationException emailException) 
+        {
+            System.out.println(emailException);
+        }
         catch (SQLException sqlException) 
         {
             sqlException.printStackTrace();

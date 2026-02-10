@@ -18,7 +18,9 @@
             "name": "testconn",
             "database": "eateateat",
             "username": "root",
-            "connectionTimeout": 10
+            "connectionTimeout": 10,
+            "password": "Jav@Pr0j$$"
         }
-    ]
+    ],
+    "maven.view": "hierarchical"
 }

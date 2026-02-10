@@ -10,7 +10,7 @@ import java.util.Scanner;
 
 // Account class to handle account-related operations
 // This will show account details and settings for logged-in customer
-// Currently a placeholder for future implementation
+// Currently in developement for changing customer details
 public class Account 
 {
 
@@ -26,25 +26,19 @@ public class Account
 
         Connection connection = null;
         PreparedStatement pstat = null;
-        ResultSet resultSet = null;
 
         try
         {
             connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+        
+            String firstName = JOptionPane.showInputDialog(null, "Enter a new first name for customer: " + customerID);
+         
+            String update = "UPDATE customers SET firstName = ? WHERE customerID = ?";
 
-            // Create SQL select statement
-            String select = "SELECT * FROM customers WHERE customerID = '" + customerID + "'"; // Placeholder customerID
+            pstat = connection.prepareStatement(update);
+            pstat.setString(1, firstName);
+            pstat.setInt(2, customerID);
 
-            pstat = connection.prepareStatement(select);
-            resultSet = pstat.executeQuery();
-
-            resultSet.next();
-            JOptionPane.showMessageDialog(null, "First Name: " + resultSet.getString("FirstName") + 
-                                                                "\nSecond Name: " + resultSet.getString("SecondName") +
-                                                                "\nAddress: " + resultSet.getString("Address") +
-                                                                "\nEmail: " + resultSet.getString("Email") +
-                                                                "\nPhone Number: " + resultSet.getString("PhoneNumber")
-                                                                , "Account Details", JOptionPane.PLAIN_MESSAGE);
         }
         catch (SQLException sqlException) {
             sqlException.printStackTrace();
@@ -53,7 +47,6 @@ public class Account
         {
             try 
             {
-                resultSet.close();
                 pstat.close();
                 connection.close();
             } 
