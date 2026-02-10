@@ -4,15 +4,18 @@ import org.apache.commons.validator.routines.EmailValidator;
 
 public class Verifier
 {
-    public static void verifyEmailFormat(String email) throws EmailConfirmationException
+    public static boolean verifyEmailFormat(String email)
     {
         EmailValidator emailValidator = EmailValidator.getInstance();
 
         boolean emailIsValid = emailValidator.isValid(email);
         if(emailIsValid)
         {
-            System.out.println("Email verified");
+            return true;
         }
-        else throw new EmailConfirmationException("Invalid email format");
+        else
+        {
+            return false;
+        }
     }
 }

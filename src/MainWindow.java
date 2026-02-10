@@ -6,6 +6,8 @@ public class MainWindow {
 
     public static void main( String [] args )
     {
+        String email;
+
         try {
             // prompt user for input
             // Menu for user options
@@ -16,8 +18,11 @@ public class MainWindow {
                 String name = JOptionPane.showInputDialog("Enter your name");
                 String surname = JOptionPane.showInputDialog("Enter your surname");
                 String address = JOptionPane.showInputDialog("Enter address");
-                String email = JOptionPane.showInputDialog("Enter email");
-                Verifier.verifyEmailFormat(email);
+                do
+                {
+                    email = JOptionPane.showInputDialog("Enter email");
+                }
+                while(!Verifier.verifyEmailFormat(email));
                 String phoneNumber = JOptionPane.showInputDialog("Enter phone number");
                 String password = JOptionPane.showInputDialog("Enter password");
                 String confirmPassword = JOptionPane.showInputDialog("Enter password again");
@@ -36,8 +41,11 @@ public class MainWindow {
                 }
             } else if (option == 1) {
                 // Gather customer details
-                String email = JOptionPane.showInputDialog("Enter your email");
-                Verifier.verifyEmailFormat(email);
+                do
+                {
+                    email = JOptionPane.showInputDialog("Enter email");
+                }
+                while(!Verifier.verifyEmailFormat(email));
                 String password = JOptionPane.showInputDialog("Enter password");
 
                 //Add customer to the database
@@ -47,9 +55,9 @@ public class MainWindow {
                 JOptionPane.showMessageDialog(null, "Invalid option selected.", "Error", JOptionPane.ERROR_MESSAGE);
             }
         }
-        catch (EmailConfirmationException emailException)
+        catch (Exception e)
         {
-            System.out.println(emailException.getMessage());
+            System.out.println(e.getMessage());
         }
         
     }//end main
