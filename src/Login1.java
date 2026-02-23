@@ -1,7 +1,6 @@
 package src;
 
-import javax.swing.JOptionPane; 
-import java.util.Scanner;
+import javax.swing.JOptionPane;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

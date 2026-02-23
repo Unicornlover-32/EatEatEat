@@ -1,12 +1,24 @@
 package src;
 
-import javax.swing.JOptionPane; // program uses JOptionPane
+import net.miginfocom.swing.MigLayout;
 
-public class MainWindow {
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
-    public static void main( String [] args )
+public class MainWindow{
+
+    public MainWindow()
     {
-        String email;
+        JFrame frame = new JFrame();
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setTitle("EatEatEat");
+        frame.setSize(500,500);
+
+        JPanel panel = new JPanel(new MigLayout());
+
+        String name;
 
         try {
             // prompt user for input
@@ -15,17 +27,30 @@ public class MainWindow {
 
             if (option == 0) {
                 // Gather customer details
-                String name = JOptionPane.showInputDialog("Enter your name");
-                String surname = JOptionPane.showInputDialog("Enter your surname");
-                String address = JOptionPane.showInputDialog("Enter address");
+                nameLabel = new JLabel("Enter your name");
+                name = panel.add(new JTextField(10));
+                surnameLabel = new JLabel("Enter your surname");
+                surname = new JTextField(10);
+                add(surname);
+                addressLabel = new JLabel("Enter address");
+                address = new JTextField(10);
+                add(address);
                 do
                 {
-                    email = JOptionPane.showInputDialog("Enter email");
+                    emailLabel = new JLabel("Enter email");
+                    email = new JTextField(10);
+                    add(email);
                 }
                 while(!Verifier.verifyEmailFormat(email));
-                String phoneNumber = JOptionPane.showInputDialog("Enter phone number");
-                String password = JOptionPane.showInputDialog("Enter password");
-                String confirmPassword = JOptionPane.showInputDialog("Enter password again");
+                phoneNumberLabel = new JLabel("Enter phone number");
+                phoneNumber = new JTextField(10);
+                add(phoneNumber);
+                passwordLabel = new JLabel("Enter password");
+                password = new JPasswordField(10);
+                add(password);
+                confirmPasswordLabel = new JLabel("Enter password again");
+                confirmPassword = new JPasswordField(10);
+                add(confirmPassword);
 
                 if (password.equals(confirmPassword)) {
                     //Add customer to the database
@@ -43,10 +68,14 @@ public class MainWindow {
                 // Gather customer details
                 do
                 {
-                    email = JOptionPane.showInputDialog("Enter email");
+                    emailLabel = new JLabel("Enter email");
+                    email = new JTextField(10);
+                    add(email);
                 }
                 while(!Verifier.verifyEmailFormat(email));
-                String password = JOptionPane.showInputDialog("Enter password");
+                passwordLabel = new JLabel("Enter password");
+                password = new JPasswordField(10);
+                add(password);
 
                 //Add customer to the database
                 Login1 login = new Login1(email, password);
@@ -59,6 +88,5 @@ public class MainWindow {
         {
             System.out.println(e.getMessage());
         }
-        
-    }//end main
+    }
 }
