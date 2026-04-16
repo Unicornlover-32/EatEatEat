@@ -8,7 +8,12 @@ public class Restuarant extends JFrame
 {
     public Restuarant(int restaurantID)
     {
-
+        setTitle("Restaurant");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        add(menuPanel());
+        pack();
+        setLocationRelativeTo(null);
+        setVisible(true);
     }
 
     private JPanel menuPanel()
