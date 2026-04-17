@@ -22,9 +22,6 @@ public class HomeFrame extends JFrame
     // Customer ID of the logged-in customer
     private int customerID;
 
-    // Restaurant ID of the selected restaurant
-    private int restaurantID;
-
     // Restaurant details
     private JLabel restaurantName;
     private JLabel cuisine;
@@ -48,7 +45,7 @@ public class HomeFrame extends JFrame
 
     private JPanel createRestaurantPanel()
     {
-        JPanel panel = new JPanel(new MigLayout("insets 30 40 30 40, wrap 2", "[right, 100][grow, fill, 250]", "[]15[]20[]"));
+        JPanel restaurantListPanel = new JPanel(new MigLayout("insets 30 40 30 40, wrap 2", "[right, 100][grow, fill, 250]", "[]15[]20[]"));
 
         try
         {
@@ -62,40 +59,13 @@ public class HomeFrame extends JFrame
 
             while (resultSet.next())
             {
-                restaurantID = resultSet.getInt("restaurantID");
+                int currentRestaurantID = resultSet.getInt("restaurantID");
                 restaurantName = new JLabel(resultSet.getString("restaurantName"));
                 cuisine = new JLabel(resultSet.getString("cuisine"));
                 rating = new JLabel(String.valueOf(resultSet.getDouble("rating")));
 
-                panel.add(restaurant(restaurantName, cuisine, rating), "span 2, wrap 20");
+                restaurantListPanel.add(restaurant(restaurantName, cuisine, rating, currentRestaurantID), "span 2, wrap 20");
             }
-
-            // Buttons to navigate to other pages
-            viewRestaurantsBtn = new JButton("View Restaurants");
-            viewOrdersBtn = new JButton("View Orders");
-            viewProfileBtn = new JButton("View Profile");
-
-            viewRestaurantsBtn.setPreferredSize(new Dimension(120, 30));
-            viewOrdersBtn.setPreferredSize(new Dimension(120, 30));
-            viewProfileBtn.setPreferredSize(new Dimension(120, 30));
-
-            // Action listeners for the buttons
-            // Each button will open a new page and close the current page
-            // No action listeners for the home button as it would open the same page
-            viewOrdersBtn.addActionListener(e -> {
-                // Open the order page
-                new Orders(customerID);
-                dispose();
-            });
-            viewProfileBtn.addActionListener(e -> {
-                // Open the profile page
-                new Profile(customerID);
-                dispose();
-            });
-
-            panel.add(viewRestaurantsBtn, "span 2, wrap 20");
-            panel.add(viewOrdersBtn, "span 2, wrap 20");
-            panel.add(viewProfileBtn, "span 2, wrap 20");
         }
         catch (SQLException sqlException)
         {
@@ -114,19 +84,67 @@ public class HomeFrame extends JFrame
                 sqlException.printStackTrace();
             }
         }
-        return panel;
+
+        // Wrap restaurant list in scroll pane
+        JScrollPane scrollPane = new JScrollPane(restaurantListPanel);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        // Get rid of the horizontal scrollbar
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        // Increase the scroll speed of the vertical scrollbar
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+        scrollPane.setBorder(null);
+
+        // Button panel using MigLayout
+        JPanel buttonPanel = new JPanel(new MigLayout("insets 10 40 20 40", "[grow, fill][grow, fill][grow, fill]", "[]"));
+
+        // Buttons to navigate to other pages
+        viewRestaurantsBtn = new JButton("View Restaurants");
+        viewOrdersBtn = new JButton("View Orders");
+        viewProfileBtn = new JButton("View Profile");
+
+        viewRestaurantsBtn.setPreferredSize(new Dimension(120, 30));
+        viewOrdersBtn.setPreferredSize(new Dimension(120, 30));
+        viewProfileBtn.setPreferredSize(new Dimension(120, 30));
+
+        // Action listeners for the buttons
+        // Each button will open a new page and close the current page
+        // No action listeners for the home button as it would open the same page
+        viewOrdersBtn.addActionListener(e -> {
+            // Open the order page
+            new Orders(customerID);
+            dispose();
+        });
+        viewProfileBtn.addActionListener(e -> {
+            // Open the profile page
+            new Profile(customerID);
+            dispose();
+        });
+
+        buttonPanel.add(viewRestaurantsBtn, "span 2, wrap 20");
+        buttonPanel.add(viewOrdersBtn, "span 2, wrap 20");
+        buttonPanel.add(viewProfileBtn, "span 2, wrap 20");
+
+        // Main panel using MigLayout — scroll area grows, button bar is pinned to bottom
+        JPanel mainPanel = new JPanel(new MigLayout("insets 0, fill", "[grow, fill]", "[grow, fill][]"));
+        mainPanel.add(scrollPane,   "cell 0 0, grow, wrap");
+        mainPanel.add(buttonPanel,  "cell 0 1, growx");
+
+        return mainPanel;
     }
 
     // Build the block for each individual restaurant
-    private JPanel restaurant(JLabel restaurantName, JLabel cuisine, JLabel rating)
+    private JPanel restaurant(JLabel restaurantName, JLabel cuisine, JLabel rating, int restaurantID)
     {
         JPanel panel = new JPanel(new MigLayout("insets 30 40 30 40, wrap 2", "[right, 100][grow, fill, 250]", "[]15[]20[]"));
 
         // View menu button which will open the menu page for the selected restaurant
         JButton viewMenuBtn = new JButton("View Menu");
         viewMenuBtn.setPreferredSize(new Dimension(120, 30));
+
+        // Use a local final variable to capture the correct restaurantID in the action listener
+        final int finalRestaurantID = restaurantID;
         viewMenuBtn.addActionListener(e -> {
-            new Restuarant(restaurantID);
+            new Menus(finalRestaurantID, customerID);
             dispose();
         });
         panel.add(restaurantName, "span 2, wrap");

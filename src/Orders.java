@@ -23,7 +23,6 @@ public class Orders extends JFrame
     private int customerID;
 
     // Constructor to initialize the customer ID
-    private int orderID;
     private JLabel restaurantName;
     private JLabel orderDate;
     private JLabel orderStatus;
@@ -47,7 +46,7 @@ public class Orders extends JFrame
     // Build the orders panel which will show the customer's past orders and current orders
     private JPanel createOrderPanel()
     {
-        JPanel panel = new JPanel(new MigLayout("insets 30 40 30 40, wrap 2", "[right, 100][grow, fill, 250]", "[]15[]20[]"));
+        JPanel orderListPanel = new JPanel(new MigLayout("insets 30 40 10 40, wrap 1", "[grow, fill]", "[]20[]"));
 
         try
         {
@@ -63,44 +62,14 @@ public class Orders extends JFrame
 
             while (resultSet.next())
             {
-                orderID = resultSet.getInt("orderID");
                 customerID = resultSet.getInt("customerID");
                 restaurantName = new JLabel(resultSet.getString("restaurantName"));
                 orderDate = new JLabel(resultSet.getString("orderDate"));
-                // Order status is a String so that it can be a JLabel
                 orderStatus = new JLabel(String.valueOf(resultSet.getString("orderStatus")));
-                // Format the order total to 2 decimal places and a String so that it can be a JLabel
                 orderTotal = new JLabel(String.format("%.2f", resultSet.getDouble("orderTotal")));
 
-                panel.add(order(restaurantName, orderDate, orderStatus, orderTotal), "span 2, wrap 20");
+                orderListPanel.add(order(restaurantName, orderDate, orderStatus, orderTotal), "growx, wrap 20");
             }
-
-            // Buttons to navigate to other pages
-            viewRestaurantsBtn = new JButton("View Restaurants");
-            viewOrdersBtn = new JButton("View Orders");
-            viewProfileBtn = new JButton("View Profile");
-
-            viewRestaurantsBtn.setPreferredSize(new Dimension(120, 30));
-            viewOrdersBtn.setPreferredSize(new Dimension(120, 30));
-            viewProfileBtn.setPreferredSize(new Dimension(120, 30));
-
-            // Action listeners for the buttons
-            // Each button will open a new page and close the current page
-            // No action listeners for the order button as it would open the same page
-            viewRestaurantsBtn.addActionListener(e -> {
-                // Open the restaurant page
-                new HomeFrame(customerID);
-                dispose();
-            });
-            viewProfileBtn.addActionListener(e -> {
-                // Open the profile page
-                new Profile(customerID);
-                dispose();
-            });
-
-            panel.add(viewRestaurantsBtn, "span 2, wrap 20");
-            panel.add(viewOrdersBtn, "span 2, wrap 20");
-            panel.add(viewProfileBtn, "span 2, wrap 20");
         }
         catch (SQLException sqlException)
         {
@@ -119,7 +88,48 @@ public class Orders extends JFrame
                 sqlException.printStackTrace();
             }
         }
-        return panel;
+
+        // Wrap order list in scroll pane
+        JScrollPane scrollPane = new JScrollPane(orderListPanel);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+        scrollPane.setBorder(null);
+
+        // Button panel using MigLayout
+        JPanel buttonPanel = new JPanel(new MigLayout("insets 10 40 20 40", "[grow, fill][grow, fill][grow, fill]", "[]"));
+
+        // Buttons to navigate to other pages
+        viewRestaurantsBtn = new JButton("View Restaurants");
+        viewOrdersBtn = new JButton("View Orders");
+        viewProfileBtn = new JButton("View Profile");
+
+        viewRestaurantsBtn.setPreferredSize(new Dimension(120, 30));
+        viewOrdersBtn.setPreferredSize(new Dimension(120, 30));
+        viewProfileBtn.setPreferredSize(new Dimension(120, 30));
+
+        // Action listeners for the buttons
+        // Each button will open a new page and close the current page
+        // No action listeners for the order button as it would open the same page
+        viewRestaurantsBtn.addActionListener(e -> {
+            new HomeFrame(customerID);
+            dispose();
+        });
+        viewProfileBtn.addActionListener(e -> {
+            new Profile(customerID);
+            dispose();
+        });
+
+        buttonPanel.add(viewRestaurantsBtn, "growx");
+        buttonPanel.add(viewOrdersBtn,      "growx");
+        buttonPanel.add(viewProfileBtn,     "growx");
+
+        // Main panel using MigLayout — scroll area grows, button bar is pinned to bottom
+        JPanel mainPanel = new JPanel(new MigLayout("insets 0, fill", "[grow, fill]", "[grow, fill][]"));
+        mainPanel.add(scrollPane,  "cell 0 0, grow, wrap");
+        mainPanel.add(buttonPanel, "cell 0 1, growx");
+
+        return mainPanel;
     }
 
     private JPanel order(JLabel restaurantName, JLabel orderDate, JLabel orderStatus, JLabel orderTotal)
