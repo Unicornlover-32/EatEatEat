@@ -34,31 +34,66 @@ public class PlaceOrder extends JFrame {
         this.basket = basket;
 
         setTitle("Place Order");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        add(new JLabel("Place Order Page for Customer ID: " + customerID + " and Restaurant ID: " + restaurantID));
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setUndecorated(false);
         add(createBasketPanel());
         pack();
         setLocationRelativeTo(null);
         setVisible(true);
-        setResizable(false);
     }
 
     private JPanel createBasketPanel()
     {
-        JPanel basketPanel = new JPanel(new MigLayout("insets 30 40 30 40, wrap 1", "[grow, fill]", "[]15[]20[]"));
-        basketPanel.add(new JLabel("Your Basket"), "span 2, align center, wrap 20");
+        JPanel basketPanel = new JPanel(new MigLayout("insets 15, wrap 1, fillx", "[grow, fill]"));
+
+        JPanel basketListPanel = new JPanel(new MigLayout("insets 15, wrap 1, fillx", "[grow, fill]"));
+        basketListPanel.setPreferredSize(new Dimension(500, 800));
+
+        JLabel title = new JLabel("Your Basket");
+        title.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        basketListPanel.add(title, "align center, wrap 20");
 
         for(int i = 0; i < basket.length; i++)
         {
             Basket item = basket[i];
             if (item != null)
             {
-                basketPanel.add(new JLabel(item.getItemName() + " - €" + item.getPrice() + " (Qty: " + item.getQuantity() + ")"));
+                JPanel itemPanel = new JPanel(new MigLayout("insets 10 15 10 15, fillx, wrap 2", "[grow, left]", "[]"));
+                itemPanel.setBorder(BorderFactory.createEtchedBorder());
+
+                JLabel itemName = new JLabel(item.getItemName());
+                itemName.setFont(new Font("Segoe UI", Font.BOLD, 14));
+
+                JLabel itemQty = new JLabel("Qty: " + item.getQuantity());
+                itemQty.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+
+                JLabel itemPrice = new JLabel("€" + String.format("%.2f", item.getPrice() * item.getQuantity()));
+                itemPrice.setFont(new Font("Segoe UI", Font.BOLD, 13));
+                itemPrice.setForeground(new Color(0, 120, 215));
+
+                itemPanel.add(itemName, "growx");
+                itemPanel.add(itemPrice, "right, wrap");
+                itemPanel.add(itemQty, "span 2");
+
+                basketListPanel.add(itemPanel, "growx, wrap 10");
                 total += item.getPrice() * item.getQuantity();
             }
         }
 
-        basketPanel.add(new JLabel("Total: €" + String.format("%.2f", total)), "align right");
+        JLabel totalLabel = new JLabel("Total: €" + String.format("%.2f", total));
+        totalLabel.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        basketListPanel.add(totalLabel, "right, wrap 20");
+
+        JScrollPane scrollPane = new JScrollPane(basketListPanel);
+        scrollPane.setPreferredSize(new Dimension(500, 700));
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+        scrollPane.setBorder(null);
+
+        // Button panel using MigLayout
+        JPanel buttonPanel = new JPanel(new MigLayout("insets 10 40 20 40, fillx, wrap 1", "[grow, fill]"));
+        buttonPanel.setPreferredSize(new Dimension(500, 100));
 
         placeOrderBtn = new JButton("Place Order");
         placeOrderBtn.addActionListener(e -> {
@@ -67,9 +102,22 @@ public class PlaceOrder extends JFrame {
             new SuccessOrder(customerID, basket);
             dispose();
         });
-        basketPanel.add(placeOrderBtn, "align right");
+        buttonPanel.add(placeOrderBtn, "growx");
 
-        return basketPanel;
+        // Button to go back to the menu page
+        JButton backButton = new JButton("Back");
+        backButton.addActionListener(e -> {
+            new Menus(customerID, restaurantID);
+            dispose();
+        });
+        buttonPanel.add(backButton, "growx");
+
+        // Main panel using MigLayout — scroll area grows, button bar is pinned to bottom
+        JPanel mainPanel = new JPanel(new MigLayout("insets 0, fill, wrap 1", "[grow, fill]", "[grow, fill][]"));
+        mainPanel.add(scrollPane, "grow");
+        mainPanel.add(buttonPanel, "growx");
+
+        return mainPanel;
     }
 
     private void orderPlaceSQL()
@@ -102,7 +150,7 @@ public class PlaceOrder extends JFrame {
 
             for (int i = 0; i < basket.length; i++)
             {
-                if (basket != null)
+                if (basket[i] != null)
                 {
                     pstat = connection.prepareStatement(insertOrderDetails);
                     pstat.setInt(1, orderID); // Get the generated orderID

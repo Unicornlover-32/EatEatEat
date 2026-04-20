@@ -38,18 +38,21 @@ public class Profile extends JFrame
     {
         this.customerID = customerID;
         setTitle("Profile");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setUndecorated(false);
         add(createProfilePanel());
         pack();
         setLocationRelativeTo(null);
         setVisible(true);
-        setResizable(false);
     }
 
     private JPanel createProfilePanel() {
-        JPanel panel = new JPanel(new MigLayout("insets 30 40 30 40, wrap 2", "[right, 120][grow, fill, 250]", "[]15[]20[]"));
+        // Main panel using MigLayout — scroll area grows, button bar is pinned to bottom
+        JPanel mainPanel = new JPanel(new MigLayout("insets 0, fill, wrap 1", "[grow, fill]", "[grow, fill][]"));
+        mainPanel.setPreferredSize(new Dimension(500, 800));
 
-        panel.setPreferredSize(new Dimension(500, 800));
+        // Profile details panel
+        JPanel panel = new JPanel(new MigLayout("insets 30 40 30 40, wrap 1, fillx", "[grow, fill]"));
 
         try {
             connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
@@ -72,29 +75,22 @@ public class Profile extends JFrame
 
             // Page title
             JLabel title = new JLabel("Profile");
+            title.setFont(new Font("Segoe UI", Font.BOLD, 18));
+            panel.add(title, "align center, wrap 20");
 
-            // Add labels and text fields for customer details
-            panel.add(title, "span 2, align center, wrap 15");
+            // Helper for form fields
+            addFormField(panel, "First Name:", firstName);
+            addFormField(panel, "Last Name:", lastName);
+            addFormField(panel, "Email:", email);
+            addFormField(panel, "Address:", address);
 
-            panel.add(new JLabel("First Name:"));
-            panel.add(firstName, "wrap");
-
-            panel.add(new JLabel("Last Name:"));
-            panel.add(lastName, "wrap");
-
-            panel.add(new JLabel("Email:"));
-            panel.add(email, "wrap");
-
-            panel.add(new JLabel("Address:"));
-            panel.add(address, "wrap");
-
-            updateDetailsButton = new JButton("Submit");
+            updateDetailsButton = new JButton("Update Details");
             updateDetailsButton.addActionListener(e ->
             {
                 try {
                     connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
                     // Update the customer details in the database
-                    String update = "UPDATE customers SET firstName = ?, lastName = ?, email = ?, address = ? WHERE customerID = ?";
+                    String update = "UPDATE customers SET firstName = ?, secondName = ?, email = ?, address = ? WHERE customerID = ?";
 
                     // Create a prepared statement for updating the customer details
                     pstat = connection.prepareStatement(update);
@@ -113,7 +109,45 @@ public class Profile extends JFrame
                     sqlException.printStackTrace();
                 }
             });
-            panel.add(updateDetailsButton);
+            panel.add(updateDetailsButton, "growx, wrap 15");
+
+            // Delete account button
+            JButton deleteAccountButton = new JButton("Delete Account");
+            deleteAccountButton.setForeground(Color.RED);
+            deleteAccountButton.addActionListener(e -> {
+                int confirm = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete your account?", "Confirm Deletion", JOptionPane.YES_NO_OPTION);
+                if (confirm == JOptionPane.YES_OPTION) {
+                    try {
+                        connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+                        // Delete the customer account from the database
+                        String delete = "UPDATE customers SET deleteFlag = 1 WHERE customerID = ?";
+
+                        // Create a prepared statement for deleting the customer account
+                        pstat = connection.prepareStatement(delete);
+                        pstat.setInt(1, customerID);
+                        pstat.executeUpdate();
+
+                        // Show a success message or perform any other necessary actions
+                        JOptionPane.showMessageDialog(null, "Account deleted successfully!");
+                        // Redirect to login page or close the application
+                        new Login();
+                        dispose();
+                    } catch (SQLException sqlException) {
+                        sqlException.printStackTrace();
+                    }
+                }
+            });
+
+            panel.add(deleteAccountButton, "growx, wrap 20");
+
+            // Scroll Pane for the form
+            JScrollPane scrollPane = new JScrollPane(panel);
+            scrollPane.setBorder(null);
+            scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+
+            // Button panel using MigLayout
+            JPanel buttonPanel = new JPanel(new MigLayout("insets 10 40 20 40, fillx", "[grow, fill][grow, fill][grow, fill]", "[]"));
+            buttonPanel.setPreferredSize(new Dimension(500, 100));
 
             // Buttons to navigate to other pages
             viewRestaurantsBtn = new JButton("View Restaurants");
@@ -125,23 +159,21 @@ public class Profile extends JFrame
             viewProfileBtn.setPreferredSize(new Dimension(120, 30));
 
             // Action listeners for the buttons
-            // Each button will open a new page and close the current page
-            // No action listeners for the profile button as it would open the same page
             viewRestaurantsBtn.addActionListener(e -> {
-                // Open the profile page
                 new HomeFrame(customerID);
                 dispose();
             });
             viewOrdersBtn.addActionListener(e -> {
-                // Open the order page
                 new Orders(customerID);
                 dispose();
             });
 
-            panel.add(viewRestaurantsBtn);
-            panel.add(viewOrdersBtn);
-            panel.add(viewProfileBtn);
+            buttonPanel.add(viewRestaurantsBtn);
+            buttonPanel.add(viewOrdersBtn);
+            buttonPanel.add(viewProfileBtn);
 
+            mainPanel.add(scrollPane, "grow");
+            mainPanel.add(buttonPanel, "growx");
         }
         catch (SQLException sqlException)
         {
@@ -151,15 +183,23 @@ public class Profile extends JFrame
         {
             try
             {
-                resultSet.close();
-                pstat.close();
-                connection.close();
+                if (resultSet != null) resultSet.close();
+                if (pstat != null) pstat.close();
+                if (connection != null) connection.close();
             }
             catch (Exception exception)
             {
                 exception.printStackTrace();
             }
         }
-        return panel;
+        return mainPanel;
+    }
+
+    private void addFormField(JPanel panel, String labelText, JTextField textField) {
+        JLabel label = new JLabel(labelText);
+        label.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        panel.add(label, "wrap 5");
+        textField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        panel.add(textField, "growx, wrap 15");
     }
 }

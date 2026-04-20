@@ -35,21 +35,23 @@ public class HomeFrame extends JFrame
     public HomeFrame(int customerID)
     {
         this.customerID = customerID;
-        setTitle("Home");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setUndecorated(false);
+        setLayout(new MigLayout("insets 10"));
         add(createRestaurantPanel());
         pack();
         setLocationRelativeTo(null);
         setVisible(true);
-        setResizable(false);
     }
 
     private JPanel createRestaurantPanel()
     {
-        JPanel restaurantListPanel = new JPanel(new MigLayout("insets 30 40 30 40, wrap 2", "[right, 100][grow, fill, 250]", "[]15[]20[]"));
+        JPanel restaurantListPanel = new JPanel(
+                new MigLayout("insets 15, wrap 1, fillx", "[grow, fill]")
+        );
 
         restaurantListPanel.setPreferredSize(new Dimension(500, 800));
-        restaurantListPanel.add(new JLabel("Restaurants"), "span 2, align center, wrap 20");
+        //restaurantListPanel.add(new JLabel("Restaurants"), "span 2, align center, wrap 20");
         try
         {
             connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
@@ -63,11 +65,11 @@ public class HomeFrame extends JFrame
             while (resultSet.next())
             {
                 int currentRestaurantID = resultSet.getInt("restaurantID");
-                restaurantName = new JLabel(resultSet.getString("restaurantName"));
-                cuisine = new JLabel(resultSet.getString("cuisine"));
-                rating = new JLabel(String.valueOf(resultSet.getDouble("rating")));
+                JLabel rName = new JLabel(resultSet.getString("restaurantName"));
+                JLabel rCuisine = new JLabel(resultSet.getString("cuisine"));
+                JLabel rRating = new JLabel(String.valueOf(resultSet.getDouble("rating")));
 
-                restaurantListPanel.add(restaurant(restaurantName, cuisine, rating, currentRestaurantID), "span 2, wrap 20");
+                restaurantListPanel.add(restaurant(rName, rCuisine, rRating, currentRestaurantID), "growx, wrap 10");
             }
         }
         catch (SQLException sqlException)
@@ -90,6 +92,7 @@ public class HomeFrame extends JFrame
 
         // Wrap restaurant list in scroll pane
         JScrollPane scrollPane = new JScrollPane(restaurantListPanel);
+        scrollPane.setPreferredSize(new Dimension(500, 700));
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         // Get rid of the horizontal scrollbar
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
@@ -98,7 +101,8 @@ public class HomeFrame extends JFrame
         scrollPane.setBorder(null);
 
         // Button panel using MigLayout
-        JPanel buttonPanel = new JPanel(new MigLayout("insets 10 40 20 40", "[grow, fill][grow, fill][grow, fill]", "[]"));
+        JPanel buttonPanel = new JPanel(new MigLayout("insets 10 40 20 40, fillx", "[grow, fill][grow, fill][grow, fill]", "[]"));
+        buttonPanel.setPreferredSize(new Dimension(500, 100));
 
         // Buttons to navigate to other pages
         viewRestaurantsBtn = new JButton("View Restaurants");
@@ -128,9 +132,9 @@ public class HomeFrame extends JFrame
         buttonPanel.add(viewProfileBtn);
 
         // Main panel using MigLayout — scroll area grows, button bar is pinned to bottom
-        JPanel mainPanel = new JPanel(new MigLayout("insets 0, fill", "[grow, fill]", "[grow, fill][]"));
-        mainPanel.add(scrollPane,   "cell 0 0, grow, wrap");
-        mainPanel.add(buttonPanel,  "cell 0 1, growx");
+        JPanel mainPanel = new JPanel(new MigLayout("insets 0, fill, wrap 1", "[grow, fill]", "[grow, fill][]"));
+        mainPanel.add(scrollPane,   "grow");
+        mainPanel.add(buttonPanel,  "growx");
 
         return mainPanel;
     }
@@ -138,22 +142,34 @@ public class HomeFrame extends JFrame
     // Build the block for each individual restaurant
     private JPanel restaurant(JLabel restaurantName, JLabel cuisine, JLabel rating, int restaurantID)
     {
-        JPanel panel = new JPanel(new MigLayout("insets 30 40 30 40, wrap 2", "[right, 100][grow, fill, 250]", "[]15[]20[]"));
+        JPanel panel = new JPanel(new MigLayout("insets 10 15 10 15, fillx, wrap 2", "[grow, left]", "[]5[]10[]"));
+        panel.setBorder(BorderFactory.createEtchedBorder());
 
-        // View menu button which will open the menu page for the selected restaurant
+        // Set fonts and colors for the restaurant details
+        restaurantName.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        cuisine.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        rating.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        rating.setForeground(new Color(0, 120, 215));
+
+        // Row 1: Restaurant Name and Rating
+        panel.add(restaurantName, "growx");
+        panel.add(rating, "right");
+
+        // Row 2: Cuisine
+        panel.add(cuisine, "span 2, growx, wrap 10");
+
+        // Row 3: View Menu button
         JButton viewMenuBtn = new JButton("View Menu");
-        viewMenuBtn.setPreferredSize(new Dimension(120, 30));
+        //viewMenuBtn.setPreferredSize(new Dimension(120, 30));
 
         // Use a local final variable to capture the correct restaurantID in the action listener
         final int finalRestaurantID = restaurantID;
         viewMenuBtn.addActionListener(e -> {
-            new Menus(finalRestaurantID, customerID);
+            new Menus(customerID, finalRestaurantID);
             dispose();
         });
-        panel.add(restaurantName, "span 2, wrap");
-        panel.add(cuisine, "span 2, wrap");
-        panel.add(rating, "span 2, wrap");
-        panel.add(viewMenuBtn, "span 2, wrap");
+
+        panel.add(viewMenuBtn, "span 2, right");
         return panel;
     }
 }

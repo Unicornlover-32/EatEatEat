@@ -5,6 +5,7 @@ import org.apache.commons.validator.routines.EmailValidator;
 import javax.swing.*;
 import java.awt.*;
 import java.sql.*;
+import org.mindrot.jbcrypt.BCrypt;
 
 class Login extends JFrame
 {
@@ -21,21 +22,20 @@ class Login extends JFrame
     private JTextField loginEmailField;
     private JPasswordField loginPasswordField;
 
-    // Buttons
-    private JButton loginBtn;
-    private JButton registerBtn;
+    // Verifier
+    private Verifier v = new Verifier();
 
     // Constructor
     public Login()
     {
         setTitle("EatEatEat");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setUndecorated(false);
         setLayout(new MigLayout("insets 10"));
         add(createLoginPanel());
         pack();
         setLocationRelativeTo(null);
         setVisible(true);
-        setResizable(false);
     }
 
     // Retrieve Customer ID
@@ -44,42 +44,43 @@ class Login extends JFrame
     // login panel
     public JPanel createLoginPanel()
     {
-        JPanel panel = new JPanel(new MigLayout("insets 30 40 30 40, wrap 2", "[right, 100][grow, fill, 250]", "[]15[]20[]"));
-
+        JPanel panel = new JPanel(new MigLayout("insets 30 40 30 40, wrap 1, fillx", "[grow, fill]"));
         panel.setPreferredSize(new Dimension(500, 800));
 
         JLabel title = new JLabel("Sign In");
-        title.setFont(new Font("SansSerif", Font.BOLD, 18));
-        panel.add(title, "span 2, align center, wrap 20");
+        title.setFont(new Font("Segoe UI", Font.BOLD, 24));
+        panel.add(title, "align center, wrap 30");
 
-        // Login button is not needed on the registration page, but we can keep it for consistency
-        // The button does nothing as it isnt needed
-        loginBtn = new JButton("Sign In");
+        JLabel emailLabel = new JLabel("Email:");
+        emailLabel.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        panel.add(emailLabel, "wrap 5");
+        loginEmailField = new JTextField();
+        loginEmailField.setText("ethan@gmail.com");
+        loginEmailField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        panel.add(loginEmailField, "growx, wrap 15");
+
+        JLabel passwordLabel = new JLabel("Password:");
+        passwordLabel.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        panel.add(passwordLabel, "wrap 5");
+        loginPasswordField = new JPasswordField();
+        loginPasswordField.setText("password");
+        loginPasswordField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        panel.add(loginPasswordField, "growx, wrap 25");
+
+        JButton loginBtn = new JButton("Login");
+        loginBtn.setFont(new Font("Segoe UI", Font.BOLD, 14));
         loginBtn.setPreferredSize(new Dimension(150, 30));
+        loginBtn.addActionListener(e -> handleLogin());
+        panel.add(loginBtn, "growx, wrap 20");
 
-        // Register button to open the registration page
-        registerBtn = new JButton("Create Account");
+        JButton registerBtn = new JButton("Create Account");
+        registerBtn.setFont(new Font("Segoe UI", Font.BOLD, 14));
         registerBtn.setPreferredSize(new Dimension(150, 30));
         registerBtn.addActionListener(e -> {
             new Account();
             dispose();
         });
-
-        panel.add(loginBtn);
-        panel.add(registerBtn);
-
-        panel.add(new JLabel("Email:"));
-        loginEmailField = new JTextField();
-        panel.add(loginEmailField);
-
-        panel.add(new JLabel("Password:"));
-        loginPasswordField = new JPasswordField();
-        panel.add(loginPasswordField);
-
-        JButton loginBtn = new JButton("Login");
-        loginBtn.setPreferredSize(new Dimension(120, 30));
-        loginBtn.addActionListener(e -> handleLogin());
-        panel.add(loginBtn, "span 2, align center, wrap");
+        panel.add(registerBtn, "growx");
 
         return panel;
     }
@@ -108,18 +109,27 @@ class Login extends JFrame
             // Establish connection to database
             connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
 
-            // SQL query to check if email and password match
-            String retrieve = "SELECT customerID FROM customers WHERE email = ? AND password = ?";
+            // SQL query to retrieve the hashed password for the given email
+            String retrieve = "SELECT customerID, password FROM customers WHERE email = ? AND deleteFlag = 0";
 
             pstat = connection.prepareStatement(retrieve);
-            // Create prepared statement for retrieving data from the table
             pstat.setString(1, email);
-            pstat.setString(2, password);
             resultSet = pstat.executeQuery();
 
             if (resultSet.next())
             {
-                customerID = resultSet.getInt("customerID");
+                // password verification using BCrypt
+                String storedHashedPassword = resultSet.getString("password");
+                boolean isMatch = BCrypt.checkpw(password, storedHashedPassword);
+
+                if (isMatch)
+                {
+                    customerID = resultSet.getInt("customerID");
+                }
+                else
+                {
+                    showError("Invalid email or password. Please try again.");
+                }
             }
             else
             {

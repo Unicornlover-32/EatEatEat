@@ -1,16 +1,20 @@
 package src;
 
 import net.miginfocom.swing.MigLayout;
-import org.apache.commons.validator.routines.EmailValidator;
 import javax.swing.*;
 import java.awt.*;
 import java.sql.*;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.mindrot.jbcrypt.BCrypt;
 
 // Account class to handle account-related operations
 // This will show account details and settings for logged-in customer
 
 public class Account extends JFrame
 {
+    private static final Log log = LogFactory.getLog(Account.class);
     // Database connection properties
     private Connection connection;
     private PreparedStatement pstat;
@@ -34,84 +38,68 @@ public class Account extends JFrame
     private JButton loginBtn;
     private JButton registerBtn;
 
+    // Verifier
+    private Verifier v = new Verifier();
+
     // Constructor
     public Account()
     {
         setTitle("EatEatEat");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setUndecorated(false);
         setLayout(new MigLayout("insets 10"));
         add(createRegisterPanel());
         pack();
         setLocationRelativeTo(null);
         setVisible(true);
-        setResizable(false);
     }
 
     // Register Panel
     public JPanel createRegisterPanel()
     {
-        JPanel panel = new JPanel(new MigLayout("insets 30 40 30 40, wrap 2", "[right, 120][grow, fill, 250]", "[]10[]"));
-
+        JPanel panel = new JPanel(new MigLayout("insets 30 40 30 40, wrap 1, fillx", "[grow, fill]"));
         panel.setPreferredSize(new Dimension(500, 800));
 
         JLabel title = new JLabel("Create an Account");
-        title.setFont(new Font("SansSerif", Font.BOLD, 18));
-        panel.add(title, "span 2, align center, wrap 15");
+        title.setFont(new Font("Segoe UI", Font.BOLD, 24));
+        panel.add(title, "align center, wrap 20");
 
-        // Login button to open the login page
-        loginBtn = new JButton("Login");
+        addFormField(panel, "First Name:", nameField = new JTextField());
+        addFormField(panel, "Surname:", surnameField = new JTextField());
+        addFormField(panel, "Email:", registerEmailField = new JTextField());
+        addFormField(panel, "Address:", addressField = new JTextField());
+        addFormField(panel, "Password:", registerPasswordField = new JPasswordField());
+        addFormField(panel, "Confirm Password:", confirmPasswordField = new JPasswordField());
+
+        JButton loginBtn = new JButton("Login");
+        loginBtn.setFont(new Font("Segoe UI", Font.BOLD, 14));
         loginBtn.setPreferredSize(new Dimension(150, 30));
         loginBtn.addActionListener(e -> {
             new Login();
             dispose();
         });
-
-        // Register button is not needed on the registration page, but we can keep it for consistency
-        // The button does nothing as it isnt needed
-        registerBtn = new JButton("Register");
-        registerBtn.setPreferredSize(new Dimension(150, 30));
-
-        panel.add(loginBtn);
-        panel.add(registerBtn);
-
-        panel.add(new JLabel("First Name:"));
-        nameField = new JTextField();
-        panel.add(nameField);
-
-        panel.add(new JLabel("Surname:"));
-        surnameField = new JTextField();
-        panel.add(surnameField);
-
-        panel.add(new JLabel("Email:"));
-        registerEmailField = new JTextField();
-        panel.add(registerEmailField);
-
-        panel.add(new JLabel("Address:"));
-        addressField = new JTextField();
-        panel.add(addressField);
-
-        panel.add(new JLabel("Password:"));
-        registerPasswordField = new JPasswordField();
-        panel.add(registerPasswordField);
-
-        panel.add(new JLabel("Confirm Password:"));
-        confirmPasswordField = new JPasswordField();
-        panel.add(confirmPasswordField);
+        panel.add(loginBtn, "growx, wrap 20");
 
         JButton createAccountBtn = new JButton("Create Account");
+        createAccountBtn.setFont(new Font("Segoe UI", Font.BOLD, 14));
         createAccountBtn.setPreferredSize(new Dimension(150, 30));
         createAccountBtn.addActionListener(e -> handleRegister());
-        panel.add(createAccountBtn, "span 2, align center, gaptop 10");
+        panel.add(createAccountBtn, "growx");
 
         return panel;
+    }
+
+    private void addFormField(JPanel panel, String labelText, JTextField textField) {
+        JLabel label = new JLabel(labelText);
+        label.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        panel.add(label, "wrap 5");
+        textField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        panel.add(textField, "growx, wrap 15");
     }
 
     // Handle registration logic
     private void handleRegister()
     {
-        // Verifier class to validate email and password
-        Verifier v = new Verifier();
-
         // Get user input
         String name = nameField.getText().trim();
         String surname = surnameField.getText().trim();
@@ -119,6 +107,7 @@ public class Account extends JFrame
         String address = addressField.getText().trim();
         String password = new String(registerPasswordField.getPassword());
         String confirmPassword = new String(confirmPasswordField.getPassword());
+        String hash = "";
 
         // Validation
         if (name.isEmpty() || surname.isEmpty() || email.isEmpty() ||
@@ -147,13 +136,19 @@ public class Account extends JFrame
             showError("Passwords do not match.");
             return;
         }
+        else
+        {
+            // hash the password
+            hash = BCrypt.hashpw(password, BCrypt.gensalt());
+        }
 
-        try {
+        try
+        {
             // Establish connection to database
             connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
 
             // Check if the customer already exists in the database
-            String checkEmail = "SELECT * FROM customers WHERE email = ?";
+            String checkEmail = "SELECT * FROM customers WHERE email = ? AND deleteFlag = 0";
             PreparedStatement checkStmt = connection.prepareStatement(checkEmail);
             checkStmt.setString(1, email);
             ResultSet checkResult = checkStmt.executeQuery();
@@ -164,7 +159,7 @@ public class Account extends JFrame
             }
 
             // SQL query to insert new customer into database
-            String insert = "INSERT INTO customers (FirstName, SecondName, Address, Email, Password) VALUES (?, ?, ?, ?, ?)";
+            String insert = "INSERT INTO customers (FirstName, SecondName, Address, Email, Password, deleteFlag) VALUES (?, ?, ?, ?, ?, ?)";
 
             pstat = connection.prepareStatement(insert);
             // Create prepared statement for inserting data into the table
@@ -172,16 +167,16 @@ public class Account extends JFrame
             pstat.setString(2, surname);
             pstat.setString(3, address);
             pstat.setString(4, email);
-            pstat.setString(5, password);
+            pstat.setString(5, hash);
+            pstat.setInt(6, 0);
             pstat.executeUpdate();
 
             // Retrieve customerID after successful registration
-            String retrieve = "SELECT customerID FROM customers WHERE email = ? AND password = ?";
+            String retrieve = "SELECT customerID FROM customers WHERE email = ?";
             // Establish connection to database
             pstat = connection.prepareStatement(retrieve);
             // Create prepared statement for retrieving data from the table
             pstat.setString(1, email);
-            pstat.setString(2, password);
             resultSet = pstat.executeQuery();
 
             // Retrieve customerID from result set
@@ -193,7 +188,6 @@ public class Account extends JFrame
         catch (SQLException e)
         {
             showError("Database error: " + e.getMessage());
-            return;
         }
         finally
         {

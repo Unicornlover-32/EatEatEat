@@ -37,21 +37,21 @@ public class Orders extends JFrame
     {
         this.customerID = customerID;
         setTitle("Orders");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setUndecorated(false);
         add(createOrderPanel());
         pack();
         setLocationRelativeTo(null);
         setVisible(true);
-        setResizable(false);
     }
     // Build the orders panel which will show the customer's past orders and current orders
     private JPanel createOrderPanel()
     {
-        JPanel orderListPanel = new JPanel(new MigLayout("insets 30 40 10 40, wrap 1", "[grow, fill]", "[]20[]"));
+        JPanel orderListPanel = new JPanel(
+                new MigLayout("insets 15, wrap 1, fillx", "[grow, fill]")
+        );
 
         orderListPanel.setPreferredSize(new Dimension(500, 800));
-
-        orderListPanel.add(new JLabel("Orders"), "span 2, align center, wrap 20");
 
         try
         {
@@ -67,13 +67,14 @@ public class Orders extends JFrame
 
             while (resultSet.next())
             {
-                customerID = resultSet.getInt("customerID");
-                restaurantName = new JLabel(resultSet.getString("restaurantName"));
-                orderDate = new JLabel(resultSet.getString("orderDate"));
-                orderStatus = new JLabel(String.valueOf(resultSet.getString("orderStatus")));
-                orderTotal = new JLabel(String.format("%.2f", resultSet.getDouble("orderTotal")));
+                int orderId = resultSet.getInt("orderID");
+                int restaurantId = resultSet.getInt("restaurantID");
+                JLabel restaurantName = new JLabel(resultSet.getString("restaurantName"));
+                JLabel oDate = new JLabel(resultSet.getString("orderDate"));
+                JLabel oStatus = new JLabel(String.valueOf(resultSet.getString("orderStatus")));
+                JLabel oTotal = new JLabel("€" + String.format("%.2f", resultSet.getDouble("orderTotal")));
 
-                orderListPanel.add(order(restaurantName, orderDate, orderStatus, orderTotal), "growx, wrap 20");
+                orderListPanel.add(order(orderId, restaurantId, restaurantName, oDate, oStatus, oTotal), "growx, wrap 10");
             }
         }
         catch (SQLException sqlException)
@@ -84,9 +85,9 @@ public class Orders extends JFrame
         {
             try
             {
-                resultSet.close();
-                pstat.close();
-                connection.close();
+                if (resultSet != null) resultSet.close();
+                if (pstat != null) pstat.close();
+                if (connection != null) connection.close();
             }
             catch (SQLException sqlException)
             {
@@ -96,13 +97,15 @@ public class Orders extends JFrame
 
         // Wrap order list in scroll pane
         JScrollPane scrollPane = new JScrollPane(orderListPanel);
+        scrollPane.setPreferredSize(new Dimension(500, 700));
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
         scrollPane.setBorder(null);
 
         // Button panel using MigLayout
-        JPanel buttonPanel = new JPanel(new MigLayout("insets 10 40 20 40", "[grow, fill][grow, fill][grow, fill]", "[]"));
+        JPanel buttonPanel = new JPanel(new MigLayout("insets 10 40 20 40, fillx", "[grow, fill][grow, fill][grow, fill]", "[]"));
+        buttonPanel.setPreferredSize(new Dimension(500, 100));
 
         // Buttons to navigate to other pages
         viewRestaurantsBtn = new JButton("View Restaurants");
@@ -114,8 +117,6 @@ public class Orders extends JFrame
         viewProfileBtn.setPreferredSize(new Dimension(120, 30));
 
         // Action listeners for the buttons
-        // Each button will open a new page and close the current page
-        // No action listeners for the order button as it would open the same page
         viewRestaurantsBtn.addActionListener(e -> {
             new HomeFrame(customerID);
             dispose();
@@ -130,28 +131,43 @@ public class Orders extends JFrame
         buttonPanel.add(viewProfileBtn);
 
         // Main panel using MigLayout — scroll area grows, button bar is pinned to bottom
-        JPanel mainPanel = new JPanel(new MigLayout("insets 0, fill", "[grow, fill]", "[grow, fill][]"));
-        mainPanel.add(scrollPane,  "cell 0 0, grow, wrap");
-        mainPanel.add(buttonPanel, "cell 0 1, growx");
+        JPanel mainPanel = new JPanel(new MigLayout("insets 0, fill, wrap 1", "[grow, fill]", "[grow, fill][]"));
+        mainPanel.add(scrollPane,  "grow");
+        mainPanel.add(buttonPanel, "growx");
 
         return mainPanel;
     }
 
-    private JPanel order(JLabel restaurantName, JLabel orderDate, JLabel orderStatus, JLabel orderTotal)
+    private JPanel order(int orderId, int restaurantId, JLabel restaurantName, JLabel orderDate, JLabel orderStatus, JLabel orderTotal)
     {
-        JPanel panel = new JPanel(new MigLayout("insets 30 40 30 40, wrap 2", "[right, 100][grow, fill, 250]", "[]15[]20[]"));
+        JPanel panel = new JPanel(new MigLayout("insets 10 15 10 15, fillx, wrap 2", "[grow, left]", "[]5[]5[]10[]"));
+        panel.setBorder(BorderFactory.createEtchedBorder());
 
-        // View orders button which will open the order page for order selected
-        JButton viewOrdersBtn = new JButton("View Orders");
-        viewOrdersBtn.setPreferredSize(new Dimension(120, 30));
-        viewOrdersBtn.addActionListener(e -> {
+        // Set fonts and colors for the order details
+        restaurantName.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        orderDate.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        orderStatus.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        orderStatus.setForeground(new Color(0, 120, 215));
+        orderTotal.setFont(new Font("Segoe UI", Font.BOLD, 13));
 
+        // Row 1: Restaurant Name and Status
+        panel.add(restaurantName, "growx");
+        panel.add(orderStatus, "right");
+
+        // Row 2: Order Date
+        panel.add(orderDate, "span 2, growx");
+
+        // Row 3: Order Total
+        panel.add(orderTotal, "span 2, growx, wrap 10");
+
+        // Row 4: View Order button
+        JButton viewOrderBtn = new JButton("View Order");
+        viewOrderBtn.addActionListener(e -> {
+            new ViewOrders(customerID, orderId, restaurantId ,restaurantName.getText());
+            dispose();
         });
-        panel.add(restaurantName, "span 2, wrap");
-        panel.add(orderDate, "span 2, wrap");
-        panel.add(orderTotal, "span 2, wrap");
-        panel.add(orderStatus, "span 2, wrap");
-        panel.add(viewOrdersBtn, "span 2, wrap");
+
+        panel.add(viewOrderBtn, "span 2, right");
         return panel;
     }
 }
