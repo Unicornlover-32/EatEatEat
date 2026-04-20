@@ -41,12 +41,15 @@ public class HomeFrame extends JFrame
         pack();
         setLocationRelativeTo(null);
         setVisible(true);
+        setResizable(false);
     }
 
     private JPanel createRestaurantPanel()
     {
         JPanel restaurantListPanel = new JPanel(new MigLayout("insets 30 40 30 40, wrap 2", "[right, 100][grow, fill, 250]", "[]15[]20[]"));
 
+        restaurantListPanel.setPreferredSize(new Dimension(500, 800));
+        restaurantListPanel.add(new JLabel("Restaurants"), "span 2, align center, wrap 20");
         try
         {
             connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
@@ -120,9 +123,9 @@ public class HomeFrame extends JFrame
             dispose();
         });
 
-        buttonPanel.add(viewRestaurantsBtn, "span 2, wrap 20");
-        buttonPanel.add(viewOrdersBtn, "span 2, wrap 20");
-        buttonPanel.add(viewProfileBtn, "span 2, wrap 20");
+        buttonPanel.add(viewRestaurantsBtn);
+        buttonPanel.add(viewOrdersBtn);
+        buttonPanel.add(viewProfileBtn);
 
         // Main panel using MigLayout — scroll area grows, button bar is pinned to bottom
         JPanel mainPanel = new JPanel(new MigLayout("insets 0, fill", "[grow, fill]", "[grow, fill][]"));

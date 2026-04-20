@@ -1,5 +1,7 @@
 package src;
 
+import net.miginfocom.swing.MigLayout;
+
 import javax.swing.*;
 import java.awt.*;
 import java.sql.*;
@@ -41,10 +43,14 @@ public class Profile extends JFrame
         pack();
         setLocationRelativeTo(null);
         setVisible(true);
+        setResizable(false);
     }
 
     private JPanel createProfilePanel() {
-        JPanel panel = new JPanel();
+        JPanel panel = new JPanel(new MigLayout("insets 30 40 30 40, wrap 2", "[right, 120][grow, fill, 250]", "[]15[]20[]"));
+
+        panel.setPreferredSize(new Dimension(500, 800));
+
         try {
             connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
 
@@ -56,26 +62,37 @@ public class Profile extends JFrame
             resultSet = pstat.executeQuery();
 
             // Retrieve customer details from the database
-            // Set text fields to allow editing
-            firstName = new JTextField(resultSet.getString("firstName"));
-            lastName = new JTextField(resultSet.getString("lastName"));
-            email = new JTextField(resultSet.getString("email"));
-            address = new JTextField(resultSet.getString("address"));
+            if (resultSet.next()) {
+                // Set text fields to allow editing
+                firstName = new JTextField(resultSet.getString("firstName"));
+                lastName = new JTextField(resultSet.getString("secondName"));
+                email = new JTextField(resultSet.getString("email"));
+                address = new JTextField(resultSet.getString("address"));
+            }
 
             // Page title
             JLabel title = new JLabel("Profile");
 
             // Add labels and text fields for customer details
-            panel.add(title);
-            panel.add(firstName);
-            panel.add(lastName);
-            panel.add(email);
-            panel.add(address);
+            panel.add(title, "span 2, align center, wrap 15");
+
+            panel.add(new JLabel("First Name:"));
+            panel.add(firstName, "wrap");
+
+            panel.add(new JLabel("Last Name:"));
+            panel.add(lastName, "wrap");
+
+            panel.add(new JLabel("Email:"));
+            panel.add(email, "wrap");
+
+            panel.add(new JLabel("Address:"));
+            panel.add(address, "wrap");
 
             updateDetailsButton = new JButton("Submit");
             updateDetailsButton.addActionListener(e ->
             {
                 try {
+                    connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
                     // Update the customer details in the database
                     String update = "UPDATE customers SET firstName = ?, lastName = ?, email = ?, address = ? WHERE customerID = ?";
 
@@ -121,9 +138,9 @@ public class Profile extends JFrame
                 dispose();
             });
 
-            panel.add(viewRestaurantsBtn, "span 2, wrap 20");
-            panel.add(viewOrdersBtn, "span 2, wrap 20");
-            panel.add(viewProfileBtn, "span 2, wrap 20");
+            panel.add(viewRestaurantsBtn);
+            panel.add(viewOrdersBtn);
+            panel.add(viewProfileBtn);
 
         }
         catch (SQLException sqlException)
@@ -137,7 +154,9 @@ public class Profile extends JFrame
                 resultSet.close();
                 pstat.close();
                 connection.close();
-            } catch (Exception exception) {
+            }
+            catch (Exception exception)
+            {
                 exception.printStackTrace();
             }
         }

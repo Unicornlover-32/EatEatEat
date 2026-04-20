@@ -42,18 +42,23 @@ public class Orders extends JFrame
         pack();
         setLocationRelativeTo(null);
         setVisible(true);
+        setResizable(false);
     }
     // Build the orders panel which will show the customer's past orders and current orders
     private JPanel createOrderPanel()
     {
         JPanel orderListPanel = new JPanel(new MigLayout("insets 30 40 10 40, wrap 1", "[grow, fill]", "[]20[]"));
 
+        orderListPanel.setPreferredSize(new Dimension(500, 800));
+
+        orderListPanel.add(new JLabel("Orders"), "span 2, align center, wrap 20");
+
         try
         {
             connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
 
             // Order details retrieved from database
-            String retrieve = "SELECT * FROM orders WHERE customerID = ?";
+            String retrieve = "SELECT * FROM orders o INNER JOIN restaurants r ON o.restaurantID = r.restaurantID WHERE o.customerID = ?";
 
             pstat = connection.prepareStatement(retrieve);
             pstat.setInt(1, customerID);
@@ -120,9 +125,9 @@ public class Orders extends JFrame
             dispose();
         });
 
-        buttonPanel.add(viewRestaurantsBtn, "growx");
-        buttonPanel.add(viewOrdersBtn,      "growx");
-        buttonPanel.add(viewProfileBtn,     "growx");
+        buttonPanel.add(viewRestaurantsBtn);
+        buttonPanel.add(viewOrdersBtn);
+        buttonPanel.add(viewProfileBtn);
 
         // Main panel using MigLayout — scroll area grows, button bar is pinned to bottom
         JPanel mainPanel = new JPanel(new MigLayout("insets 0, fill", "[grow, fill]", "[grow, fill][]"));

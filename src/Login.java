@@ -35,6 +35,7 @@ class Login extends JFrame
         pack();
         setLocationRelativeTo(null);
         setVisible(true);
+        setResizable(false);
     }
 
     // Retrieve Customer ID
@@ -45,17 +46,19 @@ class Login extends JFrame
     {
         JPanel panel = new JPanel(new MigLayout("insets 30 40 30 40, wrap 2", "[right, 100][grow, fill, 250]", "[]15[]20[]"));
 
+        panel.setPreferredSize(new Dimension(500, 800));
+
         JLabel title = new JLabel("Sign In");
         title.setFont(new Font("SansSerif", Font.BOLD, 18));
         panel.add(title, "span 2, align center, wrap 20");
 
         // Login button is not needed on the registration page, but we can keep it for consistency
         // The button does nothing as it isnt needed
-        loginBtn = new JButton("Login");
+        loginBtn = new JButton("Sign In");
         loginBtn.setPreferredSize(new Dimension(150, 30));
 
         // Register button to open the registration page
-        registerBtn = new JButton("Register");
+        registerBtn = new JButton("Create Account");
         registerBtn.setPreferredSize(new Dimension(150, 30));
         registerBtn.addActionListener(e -> {
             new Account();

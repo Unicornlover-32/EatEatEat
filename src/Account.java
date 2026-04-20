@@ -44,12 +44,15 @@ public class Account extends JFrame
         pack();
         setLocationRelativeTo(null);
         setVisible(true);
+        setResizable(false);
     }
 
     // Register Panel
     public JPanel createRegisterPanel()
     {
         JPanel panel = new JPanel(new MigLayout("insets 30 40 30 40, wrap 2", "[right, 120][grow, fill, 250]", "[]10[]"));
+
+        panel.setPreferredSize(new Dimension(500, 800));
 
         JLabel title = new JLabel("Create an Account");
         title.setFont(new Font("SansSerif", Font.BOLD, 18));
@@ -106,6 +109,10 @@ public class Account extends JFrame
     // Handle registration logic
     private void handleRegister()
     {
+        // Verifier class to validate email and password
+        Verifier v = new Verifier();
+
+        // Get user input
         String name = nameField.getText().trim();
         String surname = surnameField.getText().trim();
         String email = registerEmailField.getText().trim();
@@ -122,19 +129,20 @@ public class Account extends JFrame
         }
 
         // Email validation
-        if (!EmailValidator.getInstance().isValid(email))
+        if (!v.verifyEmailFormat(email))
         {
             showError("Please enter a valid email address.");
             return;
         }
 
-        if (password.length() < 8)
+        // Password validation
+        if (!v.verifyPasswordLength(password))
         {
             showError("Password must be at least 8 characters.");
             return;
         }
 
-        if (!password.equals(confirmPassword))
+        if (!v.verifyPasswordMatch(password, confirmPassword))
         {
             showError("Passwords do not match.");
             return;
@@ -143,6 +151,17 @@ public class Account extends JFrame
         try {
             // Establish connection to database
             connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+
+            // Check if the customer already exists in the database
+            String checkEmail = "SELECT * FROM customers WHERE email = ?";
+            PreparedStatement checkStmt = connection.prepareStatement(checkEmail);
+            checkStmt.setString(1, email);
+            ResultSet checkResult = checkStmt.executeQuery();
+
+            if (checkResult.next()) {
+                showError("Customer already exists. Please use a different email address.");
+                return;
+            }
 
             // SQL query to insert new customer into database
             String insert = "INSERT INTO customers (FirstName, SecondName, Address, Email, Password) VALUES (?, ?, ?, ?, ?)";
