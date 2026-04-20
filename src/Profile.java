@@ -1,3 +1,7 @@
+// Name: Ethan Payne
+// Student ID: C00309151
+// Date: 21/4/2026
+
 package src;
 
 import net.miginfocom.swing.MigLayout;
@@ -6,16 +10,19 @@ import javax.swing.*;
 import java.awt.*;
 import java.sql.*;
 
+// Profile class to handle profile-related operations
+// This will show the customer's profile details and allow them to update their details
+// It will also allow them to delete their account
 public class Profile extends JFrame
 {
     // Database connection properties
     private Connection connection;
     private PreparedStatement pstat;
     private ResultSet resultSet;
-    Properties props = new Properties();
-    String DB_URL = props.getDbUrl();
-    String DB_USER = props.getDbUser();
-    String DB_PASSWORD = props.getDbPassword();
+    private Properties props = new Properties();
+    private String DB_URL = props.getDbUrl();
+    private String DB_USER = props.getDbUser();
+    private String DB_PASSWORD = props.getDbPassword();
 
     // Customer ID of the logged-in customer
     private int customerID;
@@ -34,6 +41,7 @@ public class Profile extends JFrame
     private JButton viewOrdersBtn;
     private JButton viewProfileBtn;
 
+    // Constructor
     public Profile(int customerID)
     {
         this.customerID = customerID;
@@ -46,6 +54,7 @@ public class Profile extends JFrame
         setVisible(true);
     }
 
+    // Build the profile panel which will show the customer's profile details'
     private JPanel createProfilePanel() {
         // Main panel using MigLayout — scroll area grows, button bar is pinned to bottom
         JPanel mainPanel = new JPanel(new MigLayout("insets 0, fill, wrap 1", "[grow, fill]", "[grow, fill][]"));
@@ -57,11 +66,12 @@ public class Profile extends JFrame
         try {
             connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
 
+            // SQL query to retrieve customer details from the database
             String retrieve = "SELECT * FROM customers WHERE customerID = ?";
 
+            // Establish connection to database
             pstat = connection.prepareStatement(retrieve);
             pstat.setInt(1, customerID);
-
             resultSet = pstat.executeQuery();
 
             // Retrieve customer details from the database
@@ -84,6 +94,7 @@ public class Profile extends JFrame
             addFormField(panel, "Email:", email);
             addFormField(panel, "Address:", address);
 
+            // Update details button
             updateDetailsButton = new JButton("Update Details");
             updateDetailsButton.addActionListener(e ->
             {
@@ -195,6 +206,8 @@ public class Profile extends JFrame
         return mainPanel;
     }
 
+    // Method to add form fields to the panel
+    // Reduces the repetition of styling and layout for each field
     private void addFormField(JPanel panel, String labelText, JTextField textField) {
         JLabel label = new JLabel(labelText);
         label.setFont(new Font("Segoe UI", Font.BOLD, 12));

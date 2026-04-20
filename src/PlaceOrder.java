@@ -1,20 +1,25 @@
+// Name: Ethan Payne
+// Student ID: C00309151
+// Date: 21/4/2026
+
 package src;
 
 import net.miginfocom.swing.MigLayout;
-
 import javax.swing.*;
 import java.awt.*;
 import java.sql.*;
 
+// This will show the page where the customer can place an order.
+// It will show the basket items and the total price.
 public class PlaceOrder extends JFrame {
     // Database connection properties
     private Connection connection;
     private PreparedStatement pstat;
     private ResultSet resultSet;
-    Properties props = new Properties();
-    String DB_URL = props.getDbUrl();
-    String DB_USER = props.getDbUser();
-    String DB_PASSWORD = props.getDbPassword();
+    private Properties props = new Properties();
+    private String DB_URL = props.getDbUrl();
+    private String DB_USER = props.getDbUser();
+    private String DB_PASSWORD = props.getDbPassword();
 
     // Variables passed from the previous panel
     private int customerID;
@@ -27,6 +32,7 @@ public class PlaceOrder extends JFrame {
     // Buttons
     private JButton placeOrderBtn;
 
+    // Constructor
     public PlaceOrder(int customerID, int restaurantID, Basket[] basket)
     {
         this.customerID = customerID;
@@ -42,6 +48,7 @@ public class PlaceOrder extends JFrame {
         setVisible(true);
     }
 
+    // Build the panel which will show the basket items and the total price
     private JPanel createBasketPanel()
     {
         JPanel basketPanel = new JPanel(new MigLayout("insets 15, wrap 1, fillx", "[grow, fill]"));
@@ -53,6 +60,7 @@ public class PlaceOrder extends JFrame {
         title.setFont(new Font("Segoe UI", Font.BOLD, 18));
         basketListPanel.add(title, "align center, wrap 20");
 
+        // Loop through the basket items and display them
         for(int i = 0; i < basket.length; i++)
         {
             Basket item = basket[i];
@@ -80,10 +88,12 @@ public class PlaceOrder extends JFrame {
             }
         }
 
+        // Show the total price
         JLabel totalLabel = new JLabel("Total: €" + String.format("%.2f", total));
         totalLabel.setFont(new Font("Segoe UI", Font.BOLD, 16));
         basketListPanel.add(totalLabel, "right, wrap 20");
 
+        // Create a scrollable panel for the basket list
         JScrollPane scrollPane = new JScrollPane(basketListPanel);
         scrollPane.setPreferredSize(new Dimension(500, 700));
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
@@ -120,6 +130,8 @@ public class PlaceOrder extends JFrame {
         return mainPanel;
     }
 
+    // SQL query to insert order details into the database
+    // Stored as a method
     private void orderPlaceSQL()
     {
         try
@@ -172,7 +184,7 @@ public class PlaceOrder extends JFrame {
             {
                 connection.close();
                 pstat.close();
-
+                resultSet.close();
             }
             catch (Exception e)
             {

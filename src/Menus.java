@@ -1,3 +1,7 @@
+// Name: Ethan Payne
+// Student ID: C00309151
+// Date: 21/4/2026
+
 package src;
 
 import net.miginfocom.swing.MigLayout;
@@ -9,16 +13,18 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
+// This will show the page that lists all the available menus of the selected restaurant
+// It will also allow the customer to add items to the basket
 public class Menus extends JFrame
 {
     // Database connection properties
     private Connection connection;
     private PreparedStatement pstat;
     private ResultSet resultSet;
-    Properties props = new Properties();
-    String DB_URL = props.getDbUrl();
-    String DB_USER = props.getDbUser();
-    String DB_PASSWORD = props.getDbPassword();
+    private Properties props = new Properties();
+    private String DB_URL = props.getDbUrl();
+    private String DB_USER = props.getDbUser();
+    private String DB_PASSWORD = props.getDbPassword();
 
     // Restaurant ID of the selected restaurant
     private int restaurantID;
@@ -33,6 +39,7 @@ public class Menus extends JFrame
     // Counter for button presses
     private int buttonPresses = 0;
 
+    // Constructor
     public Menus(int customerID, int restaurantID)
     {
         this.customerID = customerID;

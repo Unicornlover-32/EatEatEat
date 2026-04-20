@@ -1,12 +1,13 @@
+// Name: Ethan Payne
+// Student ID: C00309151
+// Date: 21/4/2026
+
 package src;
 
 import net.miginfocom.swing.MigLayout;
 import javax.swing.*;
 import java.awt.*;
 import java.sql.*;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.mindrot.jbcrypt.BCrypt;
 
 // Account class to handle account-related operations
@@ -14,15 +15,14 @@ import org.mindrot.jbcrypt.BCrypt;
 
 public class Account extends JFrame
 {
-    private static final Log log = LogFactory.getLog(Account.class);
     // Database connection properties
     private Connection connection;
     private PreparedStatement pstat;
     private ResultSet resultSet;
-    Properties props = new Properties();
-    String DB_URL = props.getDbUrl();
-    String DB_USER = props.getDbUser();
-    String DB_PASSWORD = props.getDbPassword();
+    private Properties props = new Properties();
+    private String DB_URL = props.getDbUrl();
+    private String DB_USER = props.getDbUser();
+    private String DB_PASSWORD = props.getDbPassword();
 
     // Create account fields
     private JTextField nameField;
@@ -89,6 +89,8 @@ public class Account extends JFrame
         return panel;
     }
 
+    // Method to add each form field to the panel
+    // This is used to reduce the repetition of styling and layout for each field
     private void addFormField(JPanel panel, String labelText, JTextField textField) {
         JLabel label = new JLabel(labelText);
         label.setFont(new Font("Segoe UI", Font.BOLD, 12));
@@ -202,6 +204,7 @@ public class Account extends JFrame
     }
 
     // Main method to create and display the account frame
+    // closes the database connection and opens the home frame
     public void openHomeFrame()
     {
         try

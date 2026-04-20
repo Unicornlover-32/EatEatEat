@@ -1,23 +1,26 @@
-package src;
+// Name: Ethan Payne
+// Student ID: C00309151
+// Date: 21/4/2026
 
-// Orders class to handle order-related operations
-// This will show the page that lists all orders made by customers
+package src;
 
 import net.miginfocom.swing.MigLayout;
 import javax.swing.*;
 import java.awt.*;
 import java.sql.*;
 
+// Orders class to handle order-related operations
+// This will show the page that lists all orders made by customers
 public class Orders extends JFrame
 {
     // Database connection properties
     private Connection connection;
     private PreparedStatement pstat;
     private ResultSet resultSet;
-    Properties props = new Properties();
-    String DB_URL = props.getDbUrl();
-    String DB_USER = props.getDbUser();
-    String DB_PASSWORD = props.getDbPassword();
+    private Properties props = new Properties();
+    private String DB_URL = props.getDbUrl();
+    private String DB_USER = props.getDbUser();
+    private String DB_PASSWORD = props.getDbPassword();
 
     // Customer ID of the logged-in customer
     private int customerID;
@@ -33,6 +36,7 @@ public class Orders extends JFrame
     private JButton viewOrdersBtn;
     private JButton viewProfileBtn;
 
+    // Constructor
     public Orders(int customerID)
     {
         this.customerID = customerID;
@@ -44,6 +48,7 @@ public class Orders extends JFrame
         setLocationRelativeTo(null);
         setVisible(true);
     }
+
     // Build the orders panel which will show the customer's past orders and current orders
     private JPanel createOrderPanel()
     {
@@ -70,11 +75,10 @@ public class Orders extends JFrame
                 int orderId = resultSet.getInt("orderID");
                 int restaurantId = resultSet.getInt("restaurantID");
                 JLabel restaurantName = new JLabel(resultSet.getString("restaurantName"));
-                JLabel oDate = new JLabel(resultSet.getString("orderDate"));
-                JLabel oStatus = new JLabel(String.valueOf(resultSet.getString("orderStatus")));
-                JLabel oTotal = new JLabel("€" + String.format("%.2f", resultSet.getDouble("orderTotal")));
+                JLabel orderStatus = new JLabel(String.valueOf(resultSet.getString("orderStatus")));
+                JLabel orderTotal = new JLabel("€" + String.format("%.2f", resultSet.getDouble("orderTotal")));
 
-                orderListPanel.add(order(orderId, restaurantId, restaurantName, oDate, oStatus, oTotal), "growx, wrap 10");
+                orderListPanel.add(order(orderId, restaurantId, restaurantName, orderStatus, orderTotal), "growx, wrap 10");
             }
         }
         catch (SQLException sqlException)
@@ -138,14 +142,14 @@ public class Orders extends JFrame
         return mainPanel;
     }
 
-    private JPanel order(int orderId, int restaurantId, JLabel restaurantName, JLabel orderDate, JLabel orderStatus, JLabel orderTotal)
+    // Create a panel for each order
+    private JPanel order(int orderId, int restaurantId, JLabel restaurantName, JLabel orderStatus, JLabel orderTotal)
     {
         JPanel panel = new JPanel(new MigLayout("insets 10 15 10 15, fillx, wrap 2", "[grow, left]", "[]5[]5[]10[]"));
         panel.setBorder(BorderFactory.createEtchedBorder());
 
         // Set fonts and colors for the order details
         restaurantName.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        orderDate.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         orderStatus.setFont(new Font("Segoe UI", Font.BOLD, 13));
         orderStatus.setForeground(new Color(0, 120, 215));
         orderTotal.setFont(new Font("Segoe UI", Font.BOLD, 13));
@@ -154,13 +158,10 @@ public class Orders extends JFrame
         panel.add(restaurantName, "growx");
         panel.add(orderStatus, "right");
 
-        // Row 2: Order Date
-        panel.add(orderDate, "span 2, growx");
-
-        // Row 3: Order Total
+        // Row 2: Order Total
         panel.add(orderTotal, "span 2, growx, wrap 10");
 
-        // Row 4: View Order button
+        // Row 3: View Order button
         JButton viewOrderBtn = new JButton("View Order");
         viewOrderBtn.addActionListener(e -> {
             new ViewOrders(customerID, orderId, restaurantId ,restaurantName.getText());

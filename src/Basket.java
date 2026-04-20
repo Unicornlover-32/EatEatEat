@@ -1,3 +1,7 @@
+// Name: Ethan Payne
+// Student ID: C00309151
+// Date: 21/4/2026
+
 package src;
 
 // Basket class
@@ -14,6 +18,7 @@ public class Basket
     private String itemName;
     private double price;
 
+    // Constructor
     public Basket(int customerID, int restaurantID, int itemID ,int quantity, String itemName, double price)
     {
         this.customerID = customerID;

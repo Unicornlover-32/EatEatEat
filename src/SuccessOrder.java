@@ -1,3 +1,7 @@
+// Name: Ethan Payne
+// Student ID: C00309151
+// Date: 21/4/2026
+
 package src;
 
 import net.miginfocom.swing.MigLayout;
@@ -14,6 +18,7 @@ public class SuccessOrder extends JFrame
     // calcualte total price
     private double total = 0;
 
+    // Constructor
     public SuccessOrder(int customerId, Basket[] basket)
     {
         this.customerId = customerId;
@@ -28,6 +33,8 @@ public class SuccessOrder extends JFrame
         setVisible(true);
     }
 
+    // Build the panel which will show the order details
+    // Used to show the success message and the order details to the customer
     private JPanel createSuccessPanel()
     {
         JPanel mainPanel = new JPanel(new MigLayout("insets 0, fill, wrap 1", "[grow, fill]", "[grow, fill][]"));
@@ -44,6 +51,7 @@ public class SuccessOrder extends JFrame
         orderDetails.setFont(new Font("Segoe UI", Font.BOLD, 14));
         successPanel.add(orderDetails, "align center, wrap 20");
 
+        // Loop through the basket items and display them
         for(int i = 0; i < basket.length; i++) {
             Basket item = basket[i];
             if (item != null)

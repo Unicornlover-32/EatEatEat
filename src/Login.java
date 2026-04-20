@@ -1,3 +1,7 @@
+// Name: Ethan Payne
+// Student ID: C00309151
+// Date: 21/4/2026
+
 package src;
 
 import net.miginfocom.swing.MigLayout;
@@ -7,16 +11,18 @@ import java.awt.*;
 import java.sql.*;
 import org.mindrot.jbcrypt.BCrypt;
 
+// Login class to handle login-related operations
+// This will show the login page and allow the customer to log in
 class Login extends JFrame
 {
     // Database connection properties
     private Connection connection;
     private PreparedStatement pstat;
     private ResultSet resultSet;
-    Properties props = new Properties();
-    String DB_URL = props.getDbUrl();
-    String DB_USER = props.getDbUser();
-    String DB_PASSWORD = props.getDbPassword();
+    private Properties props = new Properties();
+    private String DB_URL = props.getDbUrl();
+    private String DB_USER = props.getDbUser();
+    private String DB_PASSWORD = props.getDbPassword();
 
     // Login fields
     private JTextField loginEmailField;
@@ -41,7 +47,7 @@ class Login extends JFrame
     // Retrieve Customer ID
     private int customerID = -1;
 
-    // login panel
+    // create login panel
     public JPanel createLoginPanel()
     {
         JPanel panel = new JPanel(new MigLayout("insets 30 40 30 40, wrap 1, fillx", "[grow, fill]"));
@@ -55,7 +61,6 @@ class Login extends JFrame
         emailLabel.setFont(new Font("Segoe UI", Font.BOLD, 12));
         panel.add(emailLabel, "wrap 5");
         loginEmailField = new JTextField();
-        loginEmailField.setText("ethan@gmail.com");
         loginEmailField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         panel.add(loginEmailField, "growx, wrap 15");
 
@@ -63,7 +68,6 @@ class Login extends JFrame
         passwordLabel.setFont(new Font("Segoe UI", Font.BOLD, 12));
         panel.add(passwordLabel, "wrap 5");
         loginPasswordField = new JPasswordField();
-        loginPasswordField.setText("password");
         loginPasswordField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         panel.add(loginPasswordField, "growx, wrap 25");
 
@@ -152,6 +156,7 @@ class Login extends JFrame
         JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
     }
 
+    // Open home frame after successful login
     public void openHomeFrame()
     {
         try

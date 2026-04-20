@@ -1,7 +1,12 @@
+// Name: Ethan Payne
+// Student ID: C00309151
+// Date: 21/4/2026
+
 package src;
 
 import org.apache.commons.validator.routines.EmailValidator;
 
+// This class will verify the input from the user
 public class Verifier
 {
     public boolean verifyEmailFormat(String email)

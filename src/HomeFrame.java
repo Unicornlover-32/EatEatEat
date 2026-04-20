@@ -1,3 +1,7 @@
+// Name: Ethan Payne
+// Student ID: C00309151
+// Date: 21/4/2026
+
 package src;
 
 import net.miginfocom.swing.MigLayout;
@@ -7,17 +11,16 @@ import java.sql.*;
 
 // This will show the main home page for logged-in customer
 // This will show all the available restaurants
-
 public class HomeFrame extends JFrame
 {
     // Database connection properties
     private Connection connection;
     private PreparedStatement pstat;
     private ResultSet resultSet;
-    Properties props = new Properties();
-    String DB_URL = props.getDbUrl();
-    String DB_USER = props.getDbUser();
-    String DB_PASSWORD = props.getDbPassword();
+    private Properties props = new Properties();
+    private String DB_URL = props.getDbUrl();
+    private String DB_USER = props.getDbUser();
+    private String DB_PASSWORD = props.getDbPassword();
 
     // Customer ID of the logged-in customer
     private int customerID;
@@ -32,6 +35,7 @@ public class HomeFrame extends JFrame
     private JButton viewOrdersBtn;
     private JButton viewProfileBtn;
 
+    // Constructor
     public HomeFrame(int customerID)
     {
         this.customerID = customerID;
@@ -44,6 +48,7 @@ public class HomeFrame extends JFrame
         setVisible(true);
     }
 
+    // Build the home page which will show all the available restaurants
     private JPanel createRestaurantPanel()
     {
         JPanel restaurantListPanel = new JPanel(

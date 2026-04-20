@@ -1,3 +1,7 @@
+// Name: Ethan Payne
+// Student ID: C00309151
+// Date: 21/4/2026
+
 package src;
 
 // Properties.java
@@ -11,6 +15,7 @@ public class Properties {
     final String DB_USER = "root";
     final String DB_PASSWORD = "Jav@Pr0j$$";
 
+    // Getter methods to access the database properties
     public String getDbUrl() {
         return DB_URL;
     }

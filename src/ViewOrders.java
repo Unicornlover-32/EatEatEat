@@ -1,21 +1,26 @@
+// Name: Ethan Payne
+// Student ID: C00309151
+// Date: 21/4/2026
+
 package src;
 
 import net.miginfocom.swing.MigLayout;
-
 import javax.swing.*;
 import java.awt.*;
 import java.sql.*;
 
+// This will show an order from the previous frame which has been selected by the customer.
+// It will show the order details and the restaurant name, and the order status.
 public class ViewOrders extends JFrame
 {
     // Database connection properties
     private Connection connection;
     private PreparedStatement pstat;
     private ResultSet resultSet;
-    Properties props = new Properties();
-    String DB_URL = props.getDbUrl();
-    String DB_USER = props.getDbUser();
-    String DB_PASSWORD = props.getDbPassword();
+    private Properties props = new Properties();
+    private String DB_URL = props.getDbUrl();
+    private String DB_USER = props.getDbUser();
+    private String DB_PASSWORD = props.getDbPassword();
 
     // Variables passed from the previous frame
     private int customerId;
@@ -26,6 +31,7 @@ public class ViewOrders extends JFrame
     // Total price of the order
     private double total = 0;
 
+    // Constructor
     public ViewOrders(int customerId, int orderId, int restaurantId, String restaurantName)
     {
         this.customerId = customerId;
@@ -40,6 +46,7 @@ public class ViewOrders extends JFrame
         setVisible(true);
     }
 
+    // Build the panel which will show the order details
     private JPanel createViewingOrdersPanel()
     {
         JPanel mainPanel = new JPanel(new MigLayout("insets 0, fill, wrap 1", "[grow, fill]", "[grow, fill][]"));
@@ -55,13 +62,16 @@ public class ViewOrders extends JFrame
         {
             connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
 
+            // Retrieve the order details from the database using a JOIN query to get the item names, quantities, and prices
             String retrieve = "SELECT m.itemName, oi.quantity, m.itemPrice FROM orderItems oi INNER JOIN menus m ON oi.itemID = m.itemID INNER JOIN orders o ON oi.orderID = o.orderID WHERE o.customerID = ? AND o.orderID = ?";
 
+            // Establish connection to database
             pstat = connection.prepareStatement(retrieve);
             pstat.setInt(1, customerId);
             pstat.setInt(2, orderId);
             resultSet = pstat.executeQuery();
 
+            // Display each item in the order in a separate panel with the item name, quantity, and price
             while (resultSet.next()) {
                 String itemName = resultSet.getString("itemName");
                 int quantity = resultSet.getInt("quantity");
