@@ -1,5 +1,6 @@
 EatEatEat - Food Delivery Application
-EatEatEat is a Java-based desktop application designed for a food delivery service. It allows users to browse restaurant menus, manage a shopping basket, place orders, and view their order history through a clean and consistent graphical user interface.
+EatEatEat is a Java-based desktop application designed for a food delivery service. It allows users to browse restaurant menus, 
+manage a shopping basket, place orders, and view their order history through a clean and consistent graphical user interface.
 
 Features
   • User Authentication: Secure login and account creation using BCrypt password hashing.
